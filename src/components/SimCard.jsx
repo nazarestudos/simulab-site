@@ -1,13 +1,13 @@
 // ─────────────────────────────────────────────────────────────
 // components/SimCard.jsx
-// Simulation card — used in Simulations listing and Home featured.
-// EDIT HERE: change icon mapping, add new simulation types.
+// Simulation card — hover glow ciano, ícone com scale/rotate,
+// shimmer accent line e micro-interações aprimoradas.
 // ─────────────────────────────────────────────────────────────
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { CategoryBadge, LevelBadge } from './CategoryBadge'
 
-// ── Icon thumbnail for simulation cards ─────────────────────
+// ── Icon thumbnail ───────────────────────────────────────────
 function SimIcon({ type, color }) {
   const icons = {
     orbit: (
@@ -68,19 +68,19 @@ export function SimCard({ sim, className = '' }) {
   return (
     <div
       className={`group flex flex-col bg-sl-card rounded-2xl overflow-hidden
-                  border border-sl-border hover:border-white/15
-                  transition-all duration-300 hover:-translate-y-1
-                  hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)] ${className}`}
+                  border border-sl-border hover:border-white/20
+                  transition-all duration-300 hover:-translate-y-1.5
+                  hover:shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_0_1px_rgba(0,212,255,0.08)] ${className}`}
     >
       {/* Icon thumbnail */}
       <div
         className="h-44 flex items-center justify-center relative overflow-hidden"
         style={{
-          background: `radial-gradient(circle at 50% 60%, ${sim.iconColor}18 0%, transparent 70%),
+          background: `radial-gradient(circle at 50% 60%, ${sim.iconColor}20 0%, transparent 70%),
                        linear-gradient(135deg, #0f1a2e 0%, #0b1222 100%)`,
         }}
       >
-        {/* Grid lines decoration */}
+        {/* Grid lines */}
         <div className="absolute inset-0 opacity-20"
           style={{
             backgroundImage: `linear-gradient(${sim.iconColor}40 1px, transparent 1px),
@@ -88,7 +88,14 @@ export function SimCard({ sim, className = '' }) {
             backgroundSize: '24px 24px',
           }}
         />
-        <div className="relative z-10 p-4 rounded-2xl"
+        {/* Glow orb on hover */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(circle at 50% 50%, ${sim.iconColor}15 0%, transparent 60%)`,
+          }}
+        />
+        <div className="relative z-10 p-4 rounded-2xl
+                        transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
           style={{ background: `${sim.iconColor}18`, border: `1px solid ${sim.iconColor}30` }}>
           <SimIcon type={sim.icon} color={sim.iconColor} />
         </div>
@@ -109,26 +116,33 @@ export function SimCard({ sim, className = '' }) {
         <Link
           to={`/simulacoes/${sim.id}`}
           className="mt-1 flex items-center gap-1.5 text-sl-cyan text-[0.83rem] font-600
-                     hover:gap-2.5 transition-all duration-200 group/btn"
+                     hover:gap-3 hover:text-cyan-300 active:scale-95
+                     transition-all duration-200 group/btn w-fit"
         >
           <span>Iniciar Simulação</span>
           <ArrowRight size={14} className="transition-transform duration-200 group-hover/btn:translate-x-1" />
         </Link>
       </div>
+
+      {/* Bottom accent shimmer on hover */}
+      <div className="h-0.5 w-0 group-hover:w-full transition-all duration-500 rounded-full"
+        style={{ background: `linear-gradient(90deg, ${sim.iconColor}, transparent)` }}
+      />
     </div>
   )
 }
 
-// ── Compact sim card for Home "Simulações em Destaque" ──────
+// ── Compact sim card for Home featured ───────────────────────
 export function SimCardHome({ sim }) {
   return (
     <Link
       to={`/simulacoes/${sim.id}`}
       className="group flex flex-col bg-sl-card rounded-2xl overflow-hidden
-                 border border-sl-border hover:border-white/15
-                 transition-all duration-300 hover:-translate-y-1"
+                 border border-sl-border hover:border-white/20
+                 transition-all duration-300 hover:-translate-y-1.5
+                 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_0_1px_rgba(0,212,255,0.06)]"
     >
-      {/* Image or icon bg */}
+      {/* Image / icon bg */}
       <div
         className="h-44 relative overflow-hidden flex items-center justify-center"
         style={{
@@ -142,18 +156,29 @@ export function SimCardHome({ sim }) {
                                linear-gradient(90deg, ${sim.iconColor}40 1px, transparent 1px)`,
             backgroundSize: '24px 24px',
           }} />
+
+        {/* Hover glow */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(circle at 50% 50%, ${sim.iconColor}18 0%, transparent 60%)`,
+          }}
+        />
+
         {/* Play overlay on hover */}
         <div className="absolute inset-0 flex items-center justify-center
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                        bg-black/20">
-          <div className="w-12 h-12 rounded-full bg-sl-cyan flex items-center justify-center
-                          shadow-[0_0_20px_rgba(0,212,255,0.4)]">
+                        opacity-0 group-hover:opacity-100 transition-all duration-300
+                        bg-black/15">
+          <div className="w-13 h-13 rounded-full bg-sl-cyan flex items-center justify-center
+                          shadow-[0_0_24px_rgba(0,212,255,0.5)]
+                          scale-75 group-hover:scale-100 transition-transform duration-300">
             <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5 translate-x-0.5">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
         </div>
-        <div className="relative z-10 p-4 rounded-2xl"
+
+        <div className="relative z-10 p-4 rounded-2xl
+                        transition-transform duration-300 group-hover:scale-110"
           style={{ background: `${sim.iconColor}18`, border: `1px solid ${sim.iconColor}30` }}>
           <SimIcon type={sim.icon} color={sim.iconColor} />
         </div>
@@ -167,6 +192,11 @@ export function SimCardHome({ sim }) {
           {sim.title}
         </h3>
       </div>
+
+      {/* Bottom shimmer */}
+      <div className="h-0.5 w-0 group-hover:w-full transition-all duration-500 rounded-full"
+        style={{ background: `linear-gradient(90deg, ${sim.iconColor}, transparent)` }}
+      />
     </Link>
   )
 }
@@ -178,7 +208,7 @@ export function SimCardRelated({ sim }) {
       to={`/simulacoes/${sim.id}`}
       className="group flex flex-col gap-2 bg-sl-card/60 rounded-xl p-4
                  border border-sl-border hover:border-white/15
-                 transition-all duration-200 hover:bg-sl-card2"
+                 transition-all duration-200 hover:bg-sl-card2 hover:-translate-y-0.5"
     >
       <div className="flex items-center justify-between gap-2">
         <CategoryBadge category={sim.category} />

@@ -12,6 +12,7 @@ import News             from './pages/News'
 import Article          from './pages/Article'
 import Simulations      from './pages/Simulations'
 import SimulationDetail from './pages/SimulationDetail'
+import Sobre          from './pages/Sobre'
 
 // Scroll to top whenever the route changes
 function ScrollToTop() {
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/noticias/:id"            element={<Article />} />
             <Route path="/simulacoes"              element={<Simulations />} />
             <Route path="/simulacoes/:id"          element={<SimulationDetail />} />
+            <Route path="/sobre"                    element={<Sobre />} />
           </Routes>
         </main>
 
