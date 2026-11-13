@@ -1,38 +1,33 @@
 // ─────────────────────────────────────────────────────────────
 // components/CategoryBadge.jsx
-// Renders a coloured pill badge for a category or difficulty level.
-// EDIT HERE: add new categories to the CATEGORY_COLORS map in data/content.js
+// Minimal topic/level indicators — dot + text, no pill shapes.
 // ─────────────────────────────────────────────────────────────
-import { CATEGORY_COLORS, LEVEL_COLORS } from '../data/content'
+import { TOPIC_COLORS, LEVEL_COLORS } from '../data'
 
 export function CategoryBadge({ category, className = '' }) {
-  const color = CATEGORY_COLORS[category] ?? '#6b84a8'
+  const color = TOPIC_COLORS[category] ?? '#555'
   return (
-    <span
-      className={`inline-block px-3 py-1 rounded-full text-[0.72rem] font-600 font-body tracking-wide
-                  transition-all duration-200 ${className}`}
-      style={{
-        backgroundColor: `${color}22`,
-        color: color,
-        border: `1px solid ${color}44`,
-      }}
-    >
-      {category}
+    <span className={`inline-flex items-center gap-2 ${className}`}>
+      <span
+        className="w-2 h-2 shrink-0"
+        style={{ background: color }}
+      />
+      <span
+        className="text-[0.875rem] font-500"
+        style={{ color }}
+      >
+        {category}
+      </span>
     </span>
   )
 }
 
 export function LevelBadge({ level, className = '' }) {
-  const style = LEVEL_COLORS[level] ?? { bg: 'rgba(107,132,168,0.15)', text: '#6b84a8' }
+  const style = LEVEL_COLORS[level] ?? { bg: 'transparent', text: '#555' }
   return (
     <span
-      className={`inline-block px-3 py-1 rounded-full text-[0.72rem] font-600 font-body
-                  tracking-wide ${className}`}
-      style={{
-        backgroundColor: style.bg,
-        color: style.text,
-        border: `1px solid ${style.text}44`,
-      }}
+      className={`inline-block text-[0.875rem] font-500 ${className}`}
+      style={{ color: style.text }}
     >
       {level}
     </span>

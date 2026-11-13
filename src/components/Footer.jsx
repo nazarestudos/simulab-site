@@ -1,116 +1,73 @@
 // ─────────────────────────────────────────────────────────────
-// components/Footer.jsx
-// Site footer modernizado: gradiente superior, links animados,
-// tagline, redes sociais placeholder e coluna de newsletter.
+// components/Footer.jsx — rodapé com o logotipo cinético: cada
+// letra engorda e alarga quando o cursor chega perto (fonte variável).
 // ─────────────────────────────────────────────────────────────
 import { Link } from 'react-router-dom'
-import { Atom, ArrowRight } from 'lucide-react'
+import { LogoMark } from './Navbar'
+import { TOPICS, TOPIC_COLORS } from '../data'
+import { RollText, Wordmark } from './Kinetic'
 
-const NAV_COL = [
-  ['Home',       '/'],
-  ['Notícias',   '/noticias'],
-  ['Simulações', '/simulacoes'],
-  ['Sobre',      '/sobre'],
+const NAV_LINKS = [
+  ['Início',  '/'],
+  ['Acervo',  '/acervo'],
+  ['Simulações', '/acervo?sim=1'],
+  ['Sobre',   '/sobre'],
 ]
 
 export default function Footer() {
+  const year = new Date().getFullYear()
+
   return (
-    <footer className="relative mt-auto overflow-hidden"
-      style={{
-        borderTop: '1px solid rgba(0,212,255,0.12)',
-        background: 'linear-gradient(180deg, rgba(0,212,255,0.03) 0%, #0b1222 40%)',
-      }}>
+    <footer className="relative mt-auto border-t-2 border-white overflow-hidden">
+      <div className="container-xl pt-section pb-8">
 
-      {/* Top gradient bar */}
-      <div className="h-px w-full"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(0,212,255,0.4), rgba(139,92,246,0.3), transparent)' }} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
-
-        {/* ── Main grid ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-
-          {/* Col 1: Brand */}
-          <div className="lg:col-span-2 flex flex-col gap-5">
-            <Link to="/" className="flex items-center gap-2.5 group w-fit">
-              <div className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
-                <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                  <rect width="32" height="32" rx="8" fill="#0ea5e9" />
-                  <circle cx="16" cy="16" r="6" stroke="white" strokeWidth="2" fill="none" />
-                  <circle cx="16" cy="16" r="2" fill="white" />
-                  <line x1="16" y1="4"  x2="16" y2="10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="16" y1="22" x2="16" y2="28" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="4"  y1="16" x2="10" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="22" y1="16" x2="28" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-              <span className="font-display font-700 text-sl-text text-[1.1rem]
-                               group-hover:text-sl-cyan transition-colors duration-200">
-                SimuLab
-              </span>
+        <div className="grid gap-14 lg:grid-cols-[1.2fr_1fr] mb-16 lg:mb-24">
+          <div className="flex flex-col gap-6 max-w-md">
+            <Link to="/" className="flex items-center gap-2.5 w-fit">
+              <LogoMark size={28} />
+              <span className="font-display font-700 text-sl-text text-[1.1rem]">SimuLab</span>
             </Link>
-            <p className="text-sl-dim text-[0.85rem] leading-relaxed max-w-sm">
-              Ciência para todos. Curiosidade sem limites. Explore simulações interativas
-              e as últimas descobertas científicas, gratuitamente.
+            <p className="text-sl-dim text-[1rem] leading-relaxed">
+              Simulações interativas e artigos de física, química, biologia, astronomia,
+              matemática, medicina e computação. Grátis, sem cadastro.
             </p>
-            {/* Badge */}
-            <div className="flex items-center gap-2 w-fit px-3 py-1.5 rounded-full
-                            bg-sl-cyan/8 border border-sl-cyan/20">
-              <Atom size={12} className="text-sl-cyan" />
-              <span className="text-sl-cyan text-[0.72rem] font-600 tracking-wide">
-                Feito no Brasil 🇧🇷
-              </span>
-            </div>
           </div>
 
-          {/* Col 2: Nav */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-display font-700 text-sl-text text-[0.85rem] tracking-wide uppercase mb-1">
-              Navegação
-            </h3>
-            {NAV_COL.map(([label, href]) => (
-              <Link
-                key={href}
-                to={href}
-                className="flex items-center gap-1.5 text-[0.85rem] text-sl-dim
-                           hover:text-sl-cyan hover:translate-x-1
-                           transition-all duration-200 group w-fit"
-              >
-                <ArrowRight size={11} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                {label}
-              </Link>
-            ))}
-          </div>
+          <div className="grid grid-cols-2 gap-10">
+            <nav aria-label="Rodapé" className="flex flex-col gap-3">
+              <h3 className="text-sl-muted text-[0.875rem] mb-1">Navegar</h3>
+              {NAV_LINKS.map(([label, href]) => (
+                <Link key={href} to={href} className="text-[1rem] text-sl-text w-fit">
+                  <RollText>{label}</RollText>
+                </Link>
+              ))}
+            </nav>
 
-          {/* Col 3: Info */}
-          <div className="flex flex-col gap-3">
-            <h3 className="font-display font-700 text-sl-text text-[0.85rem] tracking-wide uppercase mb-1">
-              Áreas
-            </h3>
-            {['Física', 'Astronomia', 'Química', 'Biologia', 'Matemática', 'Computação'].map(area => (
-              <Link
-                key={area}
-                to={`/simulacoes`}
-                className="flex items-center gap-1.5 text-[0.85rem] text-sl-dim
-                           hover:text-sl-cyan hover:translate-x-1
-                           transition-all duration-200 group w-fit"
-              >
-                <ArrowRight size={11} className="opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                {area}
-              </Link>
-            ))}
+            <nav aria-label="Áreas" className="flex flex-col gap-3">
+              <h3 className="text-sl-muted text-[0.875rem] mb-1">Áreas</h3>
+              {TOPICS.filter(t => t !== 'Todas').map(topic => (
+                <Link
+                  key={topic}
+                  to={`/acervo?topico=${encodeURIComponent(topic)}`}
+                  className="flex items-center gap-2.5 text-[1rem] text-sl-text w-fit"
+                >
+                  <span className="w-2 h-2 shrink-0" style={{ background: TOPIC_COLORS[topic] }} aria-hidden="true" />
+                  <RollText>{topic}</RollText>
+                </Link>
+              ))}
+            </nav>
           </div>
         </div>
 
-        {/* ── Bottom bar ── */}
-        <div className="border-t border-sl-border pt-6 flex flex-col sm:flex-row
-                        items-center justify-between gap-3">
-          <p className="text-sl-muted text-[0.78rem]">
-            © {new Date().getFullYear()} SimuLab. Todos os direitos reservados.
-          </p>
-          <p className="text-sl-muted text-[0.78rem]">
-            Construído com ❤️ para a comunidade científica brasileira
-          </p>
+        <Wordmark
+          text="SIMULAB"
+          className="select-none text-white text-[clamp(4rem,21vw,20rem)] -mx-[2vw] mb-8"
+        />
+
+        <div className="border-t border-sl-border2 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2
+                        text-sl-muted text-[0.875rem]">
+          <p>© {year} SimuLab</p>
+          <p>Feito no Brasil</p>
         </div>
       </div>
     </footer>
