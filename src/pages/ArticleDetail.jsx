@@ -4,12 +4,14 @@
 // conteúdo, CTA da simulação e navegação anterior/próximo.
 // ─────────────────────────────────────────────────────────────
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { motion, useScroll, useSpring } from 'framer-motion'
-import { ChevronRight, ChevronLeft, ArrowUpRight, PlayCircle } from 'lucide-react'
-import { getArtigoById, ARTIGOS } from '../data'
+import { motion, useScroll, useSpring, useReducedMotion } from 'framer-motion'
+import { ChevronRight, ChevronLeft, ArrowUpRight, Play } from 'lucide-react'
+import { getArtigoById, ARTIGOS, TOPIC_COLORS } from '../data'
 import { CategoryBadge, LevelBadge } from '../components/CategoryBadge'
 import { ArticleListRow, ArticleCardCompact } from '../components/ArticleCard'
-import { BlurReveal, MaskReveal } from '../components/Reveal'
+import { BlurReveal } from '../components/Reveal'
+import { RollText } from '../components/Kinetic'
+import { SimPreview } from '../components/SimLive'
 
 function ReadingProgress() {
   const { scrollYProgress } = useScroll()
@@ -29,6 +31,8 @@ export default function ArticleDetail() {
   const { id }   = useParams()
   const navigate = useNavigate()
   const article  = getArtigoById(id)
+  const reduce   = useReducedMotion()
+  const hasSim   = Boolean(article?.simulation && typeof article.simulation === 'object')
 
   if (!article) {
     return (
@@ -80,12 +84,50 @@ export default function ArticleDetail() {
           </span>
         </div>
 
-        <BlurReveal as="h1" className="font-display font-700 text-display-xl leading-[0.98] text-sl-text max-w-4xl mb-5">
-          {article.title}
-        </BlurReveal>
-        <BlurReveal as="p" delay={0.1} className="text-sl-dim text-[1rem] leading-relaxed max-w-2xl">
-          {article.summary}
-        </BlurReveal>
+        {/* Com simulação, o cabeçalho divide a tela com ela — rodando. */}
+        <div className={hasSim ? 'grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:items-end' : ''}>
+          <div className="min-w-0">
+            <BlurReveal as="h1" className={`font-display font-700 leading-[0.98] text-sl-text mb-5 ${
+              hasSim ? 'text-display-lg max-w-[16ch]' : 'text-display-xl max-w-4xl'
+            }`}>
+              {article.title}
+            </BlurReveal>
+            <BlurReveal as="p" delay={0.1} className="text-sl-dim text-[1rem] leading-relaxed max-w-2xl">
+              {article.summary}
+            </BlurReveal>
+          </div>
+
+          {hasSim && (
+            <Link
+              to={`/acervo/${article.id}/simulacao`}
+              data-cursor-label="Mexer"
+              className="group block"
+              aria-label={`Abrir a simulação: ${article.simulation.subtitle ?? article.title}`}
+            >
+              <div className="relative aspect-[16/10] bg-black border border-sl-border2 group-hover:border-white
+                              transition-colors duration-200 overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none">
+                  <SimPreview article={article} running={!reduce} />
+                </div>
+                <div key={article.id} className="stage-fx" aria-hidden="true" />
+                <span
+                  className="absolute left-0 top-0 h-[3px] w-full origin-left scale-x-0
+                             group-hover:scale-x-100 transition-transform duration-300 ease-expo-out"
+                  style={{ background: TOPIC_COLORS[article.topic] }}
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="flex items-center justify-between gap-4 border border-t-0 border-sl-border2
+                              group-hover:border-white group-hover:bg-white group-hover:text-black
+                              px-5 py-3.5 transition-colors duration-150">
+                <span className="font-700 text-[0.9375rem]">
+                  <RollText>Mexer nesta simulação</RollText>
+                </span>
+                <Play size={11} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+              </div>
+            </Link>
+          )}
+        </div>
       </section>
 
       {/* ── Corpo do artigo ── */}
@@ -95,38 +137,31 @@ export default function ArticleDetail() {
           {/* Conteúdo principal */}
           <article className="flex-1 min-w-0 max-w-3xl">
 
-            {/* CTA da simulação */}
-            {article.simulation && (
-              <Link
-                to={`/acervo/${article.id}/simulacao`}
-                className="group flex items-center justify-between gap-4 mb-12 p-6
-                           border border-white/10 hover:border-white/20
-                           bg-white/[0.02] hover:bg-white/[0.04]
-                           transition-all duration-200"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-none bg-white flex items-center justify-center shrink-0">
-                    <PlayCircle size={20} className="text-black" />
-                  </div>
-                  <div>
-                    <p className="font-display font-700 text-sl-text text-[1rem] leading-snug">
-                      {article.simulation.subtitle}
-                    </p>
-                    <p className="text-sl-dim text-[0.8rem] mt-0.5">Simulação interativa</p>
-                  </div>
-                </div>
-                <ArrowUpRight
-                  size={18}
-                  className="text-sl-dim group-hover:text-sl-text
-                             transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                />
-              </Link>
-            )}
-
             <div
               className="prose-simulab"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
+
+            {/* Depois de ler: a mesma simulação, agora com contexto */}
+            {hasSim && (
+              <Link
+                to={`/acervo/${article.id}/simulacao`}
+                data-cursor="frame"
+                className="group mt-14 flex items-center justify-between gap-6 px-6 py-6
+                           border-2 border-white/40 hover:border-white hover:bg-white hover:text-black
+                           transition-colors duration-150"
+              >
+                <span>
+                  <span className="block font-display font-700 text-[1.25rem] leading-tight tracking-[-0.02em]">
+                    Agora teste o que você leu
+                  </span>
+                  <span className="block text-sl-dim group-hover:text-black/70 text-[0.875rem] mt-1.5">
+                    {article.simulation.subtitle ?? article.title}
+                  </span>
+                </span>
+                <Play size={14} fill="currentColor" strokeWidth={0} className="shrink-0" aria-hidden="true" />
+              </Link>
+            )}
 
             {/* Compartilhar */}
             <div className="mt-16 pt-8 border-t border-sl-border">

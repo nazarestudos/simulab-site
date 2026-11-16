@@ -181,5 +181,661 @@ export const ARTIGOS = [
       "presets": [{"label": "Barreira fina (0,05 nm)", "values": {"barrier": 0.05, "energy": 15}}, {"label": "Barreira grossa (0,5 nm)", "values": {"barrier": 0.5, "energy": 15}}, {"label": "Acima da barreira", "values": {"barrier": 0.3, "energy": 40}}],
       "controls": [{"id": "energy", "label": "Energia do elétron", "unit": "eV", "min": 1, "max": 50, "default": 15, "step": 1}, {"id": "barrier", "label": "Espessura da barreira", "unit": "nm", "min": 0.05, "max": 1, "default": 0.2, "step": 0.05}]
     }
+  },
+  {
+    "id": "atomo-bohr",
+    "topic": "Física Quântica",
+    "title": "O Átomo de Bohr e as Cores do Hidrogênio",
+    "summary": "Por que um gás aquecido não brilha com todas as cores, e sim com umas poucas linhas finas — e como isso revelou que a energia do átomo vem em degraus.",
+    "image": "",
+    "level": "Intermediário",
+    "concepts": [
+      "Níveis de energia",
+      "Quantização",
+      "Fóton",
+      "Espectro de emissão",
+      "Série de Balmer"
+    ],
+    "content": "\n<p>Passe a luz de uma lâmpada de hidrogênio por um prisma e o resultado surpreende: em vez de um arco-íris contínuo, aparecem quatro riscos coloridos sobre um fundo preto. Um vermelho, um azul-esverdeado e dois violeta. Sempre os mesmos, sempre nas mesmas posições. Durante décadas ninguém soube explicar por quê.</p>\n\n<h2>A energia em degraus</h2>\n<p>Em 1913, Niels Bohr propôs que o elétron do hidrogênio não pode ter qualquer energia. Só alguns valores são permitidos, numerados por um inteiro <strong>n</strong>:</p>\n<div class='formula'>Eₙ = −13,6 eV / n²<small>n = 1 é o nível mais baixo; quanto maior n, mais perto de zero</small></div>\n<p>O sinal negativo quer dizer que o elétron está preso ao núcleo: é preciso <em>fornecer</em> 13,6 eV para arrancá-lo do nível mais baixo. Em zero ele está livre.</p>\n\n<h2>Cada salto, um fóton</h2>\n<p>Quando o elétron cai de um nível alto para um mais baixo, a diferença de energia sai como um único fóton. Como só existem certos níveis, só existem certas diferenças — e portanto só certas cores:</p>\n<div class='formula'>ΔE = 13,6 eV · (1/n_f² − 1/n_i²)&nbsp;&nbsp;&nbsp;&nbsp;λ = h·c / ΔE</div>\n<div class='example'><span class='tag'>Exemplo</span>\n<p>Do nível 3 para o nível 2: ΔE = 13,6 · (1/4 − 1/9) = 1,89 eV. Isso dá λ = 1240 / 1,89 ≈ 656 nm, o risco vermelho do hidrogênio, chamado H-alfa.</p></div>\n\n<h2>As séries</h2>\n<p>Os saltos são agrupados pelo nível de chegada. Os que terminam em n = 2 formam a <strong>série de Balmer</strong> e caem na luz visível. Os que terminam em n = 1 (série de Lyman) liberam muito mais energia e ficam no ultravioleta. Os que terminam em n = 3 (Paschen) ficam no infravermelho. O caminho inverso também existe: um átomo pode absorver exatamente esses mesmos fótons e subir de nível.</p>\n\n<h2>Por que isso importa</h2>\n<p>Cada elemento tem seu próprio conjunto de linhas, como uma impressão digital. É olhando para essas linhas na luz das estrelas que se sabe do que elas são feitas, a que temperatura estão e a que velocidade se afastam de nós.</p>\n<div class='callout'><span class='tag'>Limite do modelo</span>\n<p>O modelo de Bohr acerta as energias de átomos com um único elétron (H, He⁺, Li²⁺), mas a ideia de órbitas circulares está errada. A mecânica quântica moderna troca as órbitas por nuvens de probabilidade — e mantém os mesmos níveis de energia.</p></div>\n",
+    "relatedIds": [
+      "efeito-fotoeletrico",
+      "tunelamento",
+      "fenda-dupla"
+    ],
+    "simulation": {
+      "component": "atomo-bohr",
+      "subtitle": "Níveis de energia e espectro do hidrogênio",
+      "about": "Arraste o elétron para o nível de partida e a ponta da seta para o nível de chegada. A simulação calcula a energia do fóton, o comprimento de onda e mostra onde a linha cai no espectro: se for visível, você vê a cor; se não, ela aparece como ultravioleta ou infravermelho. Troque o átomo para ver as mesmas séries deslocadas pelo fator Z².",
+      "presets": [
+        {
+          "label": "H-alfa (3 → 2)",
+          "values": {
+            "nInicial": 3,
+            "nFinal": 2,
+            "atomo": 1
+          }
+        },
+        {
+          "label": "H-beta (4 → 2)",
+          "values": {
+            "nInicial": 4,
+            "nFinal": 2,
+            "atomo": 1
+          }
+        },
+        {
+          "label": "Lyman-alfa (2 → 1)",
+          "values": {
+            "nInicial": 2,
+            "nFinal": 1,
+            "atomo": 1
+          }
+        },
+        {
+          "label": "Paschen-alfa (4 → 3)",
+          "values": {
+            "nInicial": 4,
+            "nFinal": 3,
+            "atomo": 1
+          }
+        },
+        {
+          "label": "Absorção (1 → 3)",
+          "values": {
+            "nInicial": 1,
+            "nFinal": 3,
+            "atomo": 1
+          }
+        }
+      ],
+      "controls": [
+        {
+          "id": "nInicial",
+          "label": "Nível de partida",
+          "unit": "",
+          "min": 1,
+          "max": 6,
+          "default": 3,
+          "step": 1
+        },
+        {
+          "id": "nFinal",
+          "label": "Nível de chegada",
+          "unit": "",
+          "min": 1,
+          "max": 6,
+          "default": 2,
+          "step": 1
+        },
+        {
+          "id": "atomo",
+          "type": "select",
+          "label": "Átomo (um elétron só)",
+          "default": 1,
+          "options": [
+            {
+              "value": 1,
+              "label": "Hidrogênio"
+            },
+            {
+              "value": 2,
+              "label": "He⁺"
+            },
+            {
+              "value": 3,
+              "label": "Li²⁺"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "decaimento-radioativo",
+    "topic": "Física Quântica",
+    "title": "Decaimento Radioativo e Meia-Vida",
+    "summary": "Nenhum núcleo sabe quando vai decair, e mesmo assim um punhado deles segue uma lei exata. É assim que se data um fóssil e se dosa um exame.",
+    "image": "",
+    "level": "Iniciante",
+    "concepts": [
+      "Meia-vida",
+      "Decaimento exponencial",
+      "Probabilidade",
+      "Atividade",
+      "Datação por carbono-14"
+    ],
+    "content": "\n<p>Alguns núcleos atômicos são instáveis: cedo ou tarde eles se transformam em outro núcleo, soltando radiação. O curioso é o \"cedo ou tarde\". Não existe relógio interno, não existe desgaste. Um núcleo de carbono-14 que existe há dez mil anos tem exatamente a mesma chance de decair no próximo minuto que um recém-formado.</p>\n\n<h2>Do acaso sai uma lei</h2>\n<p>Se cada núcleo tem uma chance fixa de decair por unidade de tempo, quanto mais núcleos houver, mais decaimentos acontecem — e a amostra encolhe na proporção do que resta. O resultado é uma queda exponencial:</p>\n<div class='formula'>N(t) = N₀ · 2^(−t / T½)<small>T½ é a meia-vida: o tempo para metade da amostra decair</small></div>\n<p>Depois de uma meia-vida sobra metade. Depois de duas, um quarto. Depois de dez, cerca de um milésimo. A meia-vida é uma propriedade do isótopo e não muda com temperatura, pressão ou reações químicas.</p>\n\n<div class='example'><span class='tag'>Exemplo</span>\n<p>O carbono-14 tem meia-vida de 5 730 anos. Um osso com um quarto do carbono-14 de um osso recente passou por duas meias-vidas: tem cerca de 11 460 anos.</p></div>\n\n<h2>O indivíduo é imprevisível, o conjunto não</h2>\n<p>Com poucos núcleos, a contagem real oscila bastante em volta da curva. Com muitos, a oscilação relativa some: a flutuação típica é da ordem de √N, então com um milhão de núcleos o desvio é de um em mil. É por isso que a lei parece exata no laboratório, onde uma amostra minúscula tem trilhões de trilhões de átomos.</p>\n\n<h2>Atividade</h2>\n<p>O que um detector mede não é quantos núcleos restam, e sim quantos decaem por segundo. Essa <strong>atividade</strong> é proporcional ao que resta, então cai com a mesma meia-vida. Num exame de medicina nuclear usa-se tecnécio-99m, de meia-vida de 6 horas: tempo suficiente para fazer a imagem, curto o bastante para a radiação sumir do corpo em poucos dias.</p>\n\n<div class='callout'><span class='tag'>Erro comum</span>\n<p>Duas meias-vidas não zeram a amostra. Depois da primeira sobra metade; a segunda leva metade <em>do que restou</em>. A curva se aproxima de zero sem nunca chegar lá de uma vez.</p></div>\n",
+    "relatedIds": [
+      "schrodinger-cat",
+      "tunelamento",
+      "atomo-bohr"
+    ],
+    "simulation": {
+      "component": "decaimento-radioativo",
+      "subtitle": "Decaimento radioativo, núcleo a núcleo",
+      "about": "Cada quadradinho é um núcleo que, a cada instante, tem uma chance fixa de decair. Compare a contagem real com a lei exponencial: com poucos núcleos o acaso aparece, com muitos a curva alisa. A escala logarítmica transforma a exponencial numa reta, e o eixo do tempo usa a meia-vida real do isótopo escolhido.",
+      "controls": [
+        {
+          "id": "isotopo",
+          "type": "select",
+          "label": "Isótopo",
+          "default": 0,
+          "options": [
+            {
+              "value": 0,
+              "label": "Carbono-14"
+            },
+            {
+              "value": 1,
+              "label": "Iodo-131"
+            },
+            {
+              "value": 2,
+              "label": "Tecnécio-99m"
+            },
+            {
+              "value": 3,
+              "label": "Radônio-222"
+            },
+            {
+              "value": 4,
+              "label": "Urânio-238"
+            }
+          ]
+        },
+        {
+          "id": "nucleos",
+          "label": "Núcleos na amostra",
+          "unit": "",
+          "min": 100,
+          "max": 900,
+          "default": 400,
+          "step": 100
+        },
+        {
+          "id": "ritmo",
+          "label": "Tempo de tela por meia-vida",
+          "unit": "s",
+          "min": 2,
+          "max": 12,
+          "default": 5,
+          "step": 1
+        },
+        {
+          "id": "logScale",
+          "type": "toggle",
+          "label": "Escala logarítmica no gráfico",
+          "on": 1,
+          "off": 0,
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "stern-gerlach",
+    "topic": "Física Quântica",
+    "title": "Stern–Gerlach: o Spin Só Tem Dois Lados",
+    "summary": "Um feixe de átomos passa por um ímã e se divide em exatamente dois. O experimento de 1922 que mostrou que o spin é quantizado — e que medir muda o que se sabe.",
+    "image": "",
+    "level": "Avançado",
+    "concepts": [
+      "Spin",
+      "Quantização espacial",
+      "Medida quântica",
+      "Probabilidade",
+      "Superposição"
+    ],
+    "content": "\n<p>Em 1922, Otto Stern e Walther Gerlach fizeram um feixe de átomos de prata atravessar um ímã cujo campo era mais forte de um lado que do outro. Cada átomo se comporta como um ímã minúsculo, e um campo assim empurra o átomo para cima ou para baixo conforme a orientação desse ímãzinho.</p>\n\n<h2>O que se esperava e o que apareceu</h2>\n<p>Se a orientação pudesse ser qualquer uma, o feixe se abriria numa mancha contínua na tela. O que apareceu foram <strong>duas manchas separadas</strong>, e nada no meio. A grandeza responsável, que depois ganhou o nome de spin, só admite dois resultados quando medida ao longo de um eixo: para cima ou para baixo.</p>\n\n<h2>Dois ímãs em sequência</h2>\n<p>A parte mais estranha vem quando se colocam dois ímãs um depois do outro. O primeiro separa o feixe e deixa passar só os átomos \"para cima\" no eixo vertical. O segundo mede de novo, num eixo inclinado de um ângulo θ em relação ao primeiro. A chance de cada átomo sair \"para cima\" nesse novo eixo é:</p>\n<div class='formula'>P(↑) = cos²(θ/2)&nbsp;&nbsp;&nbsp;&nbsp;P(↓) = sen²(θ/2)</div>\n<p>Com θ = 0° todos sobem: medir de novo no mesmo eixo confirma o resultado. Com θ = 180° todos descem. Com θ = 90° dá meio a meio, e não há como prever o resultado de um átomo individual.</p>\n\n<div class='example'><span class='tag'>Exemplo</span>\n<p>Para θ = 60°: P(↑) = cos²(30°) = 0,75. De cada cem átomos preparados \"para cima\" na vertical, cerca de 75 sobem no segundo ímã e 25 descem.</p></div>\n\n<h2>O que isso ensina</h2>\n<p>Saber com certeza o spin num eixo significa não saber nada sobre o spin num eixo perpendicular. Não é limitação do aparelho: as duas informações não existem ao mesmo tempo. O estado \"para cima em z\" é, ele mesmo, uma soma em partes iguais de \"para cima em x\" e \"para baixo em x\".</p>\n\n<div class='callout'><span class='tag'>Detalhe</span>\n<p>Sem o primeiro ímã, o feixe que sai do forno não tem direção preferida. Nesse caso o segundo ímã divide meio a meio qualquer que seja o ângulo.</p></div>\n",
+    "relatedIds": [
+      "entrelaçamento-quantico",
+      "schrodinger-cat",
+      "fenda-dupla"
+    ],
+    "simulation": {
+      "component": "stern-gerlach",
+      "subtitle": "Stern–Gerlach com dois ímãs em sequência",
+      "about": "Gire o eixo do segundo ímã arrastando a ponta da seta e veja a divisão do feixe mudar. O primeiro ímã prepara átomos com spin para cima em z; o segundo mede num eixo inclinado, e cada átomo sai para cima com probabilidade cos²(θ/2). Desligue o primeiro ímã para ver o feixe sem preparo dividir sempre meio a meio.",
+      "presets": [
+        {
+          "label": "Mesmo eixo (0°)",
+          "values": {
+            "angulo": 0,
+            "filtro": 1
+          }
+        },
+        {
+          "label": "60°",
+          "values": {
+            "angulo": 60,
+            "filtro": 1
+          }
+        },
+        {
+          "label": "Perpendicular (90°)",
+          "values": {
+            "angulo": 90,
+            "filtro": 1
+          }
+        },
+        {
+          "label": "Oposto (180°)",
+          "values": {
+            "angulo": 180,
+            "filtro": 1
+          }
+        }
+      ],
+      "controls": [
+        {
+          "id": "angulo",
+          "label": "Ângulo do segundo ímã",
+          "unit": "°",
+          "min": 0,
+          "max": 180,
+          "default": 60,
+          "step": 5
+        },
+        {
+          "id": "taxa",
+          "label": "Átomos por segundo",
+          "unit": "",
+          "min": 5,
+          "max": 60,
+          "default": 25,
+          "step": 5
+        },
+        {
+          "id": "filtro",
+          "type": "toggle",
+          "label": "Primeiro ímã ligado (prepara o feixe)",
+          "on": 1,
+          "off": 0,
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "poco-potencial",
+    "topic": "Física Quântica",
+    "title": "A Partícula na Caixa",
+    "summary": "Prenda um elétron entre duas paredes e ele só aceita certas energias. É o modelo mais simples da mecânica quântica, e explica por que pontos quânticos mudam de cor com o tamanho.",
+    "image": "",
+    "level": "Intermediário",
+    "concepts": [
+      "Função de onda",
+      "Quantização da energia",
+      "Onda estacionária",
+      "Energia de ponto zero",
+      "Ponto quântico"
+    ],
+    "content": "\n<p>Imagine um elétron que só pode se mover ao longo de um trecho de comprimento L, com paredes que ele não consegue atravessar. Classicamente ele seria uma bolinha quicando de um lado para o outro, com a energia que você quisesse. Na mecânica quântica o elétron é uma onda, e uma onda presa entre duas paredes não pode ter qualquer forma.</p>\n\n<h2>Só cabem ondas inteiras</h2>\n<p>A onda precisa valer zero nas duas paredes. Isso só acontece se nela couber um número inteiro de meias-ondas, exatamente como numa corda de violão presa nas pontas:</p>\n<div class='formula'>λₙ = 2L / n&nbsp;&nbsp;&nbsp;&nbsp;Eₙ = n² · h² / (8mL²)<small>para um elétron, h²/8m = 0,376 eV·nm²</small></div>\n<p>O número n conta os ventres da onda. Como a energia depende de n², os níveis ficam cada vez mais afastados conforme se sobe.</p>\n\n<div class='example'><span class='tag'>Exemplo</span>\n<p>Elétron numa caixa de 1 nm: E₁ = 0,376 eV, E₂ = 1,50 eV, E₃ = 3,38 eV. Para saltar de n = 1 para n = 2 ele precisa absorver 1,13 eV, um fóton de cerca de 1100 nm (infravermelho).</p></div>\n\n<h2>Três surpresas</h2>\n<p><strong>A energia mínima não é zero.</strong> O nível mais baixo é n = 1, não n = 0. Uma partícula confinada nunca fica parada. <strong>Apertar custa energia.</strong> Reduzir L pela metade multiplica todas as energias por quatro. <strong>Há lugares proibidos.</strong> Nos nós da onda, a chance de encontrar a partícula é zero, mesmo ela estando dos dois lados.</p>\n\n<h2>Onde isso aparece</h2>\n<p>Pontos quânticos são cristais de poucos nanômetros que funcionam como caixas para elétrons. Cristais menores têm níveis mais afastados e emitem luz mais azul; os maiores emitem luz mais vermelha. É o mesmo material, com a cor controlada só pelo tamanho. Telas de TV usam esse efeito.</p>\n\n<div class='callout'><span class='tag'>Estados que se movem</span>\n<p>Num único nível, a distribuição de probabilidade fica parada no tempo. Só quando o elétron está numa soma de dois níveis é que a probabilidade balança de um lado para o outro, com período h/ΔE.</p></div>\n",
+    "relatedIds": [
+      "atomo-bohr",
+      "tunelamento",
+      "oscilador-quantico"
+    ],
+    "simulation": {
+      "component": "poco-potencial",
+      "subtitle": "Partícula num poço de potencial infinito",
+      "about": "Arraste a parede da direita para mudar a largura do poço e escolha o nível. A área cheia é a chance de encontrar a partícula em cada ponto; o tracejado é a onda. Ligue a soma de dois níveis para ver a probabilidade balançar, e compare a chance em cada terço do poço com o palpite clássico de um terço para cada lado.",
+      "presets": [
+        {
+          "label": "Estado fundamental",
+          "values": {
+            "nivel": 1,
+            "superposicao": 0
+          }
+        },
+        {
+          "label": "n = 3",
+          "values": {
+            "nivel": 3,
+            "superposicao": 0
+          }
+        },
+        {
+          "label": "Poço estreito (0,3 nm)",
+          "values": {
+            "largura": 0.3
+          }
+        },
+        {
+          "label": "Poço largo (2 nm)",
+          "values": {
+            "largura": 2
+          }
+        },
+        {
+          "label": "Balanço (níveis 1 + 2)",
+          "values": {
+            "nivel": 1,
+            "superposicao": 1
+          }
+        }
+      ],
+      "controls": [
+        {
+          "id": "nivel",
+          "label": "Nível n",
+          "unit": "",
+          "min": 1,
+          "max": 6,
+          "default": 1,
+          "step": 1
+        },
+        {
+          "id": "largura",
+          "label": "Largura do poço",
+          "unit": "nm",
+          "min": 0.2,
+          "max": 2,
+          "default": 1,
+          "step": 0.05
+        },
+        {
+          "id": "superposicao",
+          "type": "toggle",
+          "label": "Somar com o nível seguinte",
+          "on": 1,
+          "off": 0,
+          "default": 0
+        },
+        {
+          "id": "onda",
+          "type": "toggle",
+          "label": "Mostrar a onda ψ",
+          "on": 1,
+          "off": 0,
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "oscilador-quantico",
+    "topic": "Física Quântica",
+    "title": "O Oscilador Harmônico Quântico",
+    "summary": "A massa na mola refeita pela mecânica quântica: degraus de energia iguais, um mínimo que não é zero e uma onda que vaza para onde não deveria chegar.",
+    "image": "",
+    "level": "Avançado",
+    "concepts": [
+      "Energia de ponto zero",
+      "Níveis igualmente espaçados",
+      "Polinômios de Hermite",
+      "Região classicamente proibida",
+      "Princípio da correspondência"
+    ],
+    "content": "\n<p>Quase tudo que vibra perto do equilíbrio se comporta como uma massa presa a uma mola: os dois átomos de uma molécula, um átomo num cristal, até um modo da luz dentro de uma cavidade. Por isso o oscilador harmônico é o problema mais usado da física quântica.</p>\n\n<h2>Uma escada de degraus iguais</h2>\n<div class='formula'>Eₙ = ħω · (n + ½)<small>n = 0, 1, 2, … e ω é a frequência natural do oscilador</small></div>\n<p>Diferente da partícula na caixa, aqui os níveis ficam todos à mesma distância: ħω. Subir um degrau é absorver um fóton dessa energia; descer é emitir um. É assim que moléculas absorvem luz infravermelha, cada ligação na sua frequência.</p>\n\n<div class='example'><span class='tag'>Exemplo</span>\n<p>A ligação do monóxido de carbono vibra com ħω ≈ 0,27 eV. Um degrau corresponde a um fóton de 1240 / 0,27 ≈ 4600 nm, no infravermelho. É por absorver nessa faixa que gases como o CO₂ retêm calor na atmosfera.</p></div>\n\n<h2>O mínimo não é zero</h2>\n<p>No nível n = 0 sobra a energia ½ħω, chamada <strong>energia de ponto zero</strong>. O oscilador não consegue ficar parado no fundo: isso exigiria posição e momento exatos ao mesmo tempo, o que o princípio da incerteza proíbe.</p>\n\n<h2>A onda vaza</h2>\n<p>Uma massa clássica com certa energia vai até um ponto de retorno e volta. A onda quântica passa desse ponto e decai aos poucos do outro lado. No estado fundamental, a chance de encontrar a partícula além do ponto de retorno é de 15,7 %.</p>\n\n<h2>Voltando ao mundo clássico</h2>\n<p>Uma massa numa mola passa mais tempo perto das pontas, onde anda devagar, do que no meio. Nos níveis baixos a distribuição quântica não se parece nada com isso. Nos níveis altos ela se acumula nas pontas e, em média, acompanha a curva clássica. É o <strong>princípio da correspondência</strong>: a física quântica reencontra a clássica quando os números quânticos ficam grandes.</p>\n",
+    "relatedIds": [
+      "poco-potencial",
+      "principio-incerteza",
+      "tunelamento"
+    ],
+    "simulation": {
+      "component": "oscilador-quantico",
+      "subtitle": "Oscilador harmônico quântico",
+      "about": "Arraste a marca do nível para subir ou descer a escada de energia. A curva cheia é a chance de encontrar a partícula em cada posição; a parte destacada está além do ponto de retorno clássico, onde uma massa comum nunca chegaria. Compare com a distribuição clássica tracejada e veja as duas se aproximarem nos níveis altos.",
+      "presets": [
+        {
+          "label": "Estado fundamental (n = 0)",
+          "values": {
+            "nivel": 0
+          }
+        },
+        {
+          "label": "n = 1",
+          "values": {
+            "nivel": 1
+          }
+        },
+        {
+          "label": "n = 10 (quase clássico)",
+          "values": {
+            "nivel": 10
+          }
+        },
+        {
+          "label": "Vibração do CO (0,27 eV)",
+          "values": {
+            "quantum": 0.27
+          }
+        },
+        {
+          "label": "Vibração do H₂ (0,52 eV)",
+          "values": {
+            "quantum": 0.52
+          }
+        }
+      ],
+      "controls": [
+        {
+          "id": "nivel",
+          "label": "Nível n",
+          "unit": "",
+          "min": 0,
+          "max": 10,
+          "default": 0,
+          "step": 1
+        },
+        {
+          "id": "quantum",
+          "label": "Tamanho do degrau ħω",
+          "unit": "eV",
+          "min": 0.05,
+          "max": 1,
+          "default": 0.27,
+          "step": 0.01
+        },
+        {
+          "id": "classico",
+          "type": "toggle",
+          "label": "Comparar com o oscilador clássico",
+          "on": 1,
+          "off": 0,
+          "default": 1
+        },
+        {
+          "id": "psi",
+          "type": "toggle",
+          "label": "Mostrar a onda ψ no lugar de |ψ|²",
+          "on": 1,
+          "off": 0,
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "principio-incerteza",
+    "topic": "Física Quântica",
+    "title": "O Princípio da Incerteza",
+    "summary": "Quanto melhor se sabe onde uma partícula está, menos se sabe para onde ela vai. Não é falha de medida: é o que significa ser uma onda.",
+    "image": "",
+    "level": "Intermediário",
+    "concepts": [
+      "Pacote de onda",
+      "Posição e momento",
+      "Relação de Heisenberg",
+      "Espalhamento do pacote",
+      "Comprimento de onda de de Broglie"
+    ],
+    "content": "\n<p>Uma onda perfeita, com um único comprimento de onda, se estende para sempre: tem momento bem definido e nenhuma posição. Para localizar uma partícula numa região é preciso somar várias ondas de comprimentos diferentes, que se reforçam num trecho e se cancelam no resto. O resultado é um <strong>pacote de onda</strong>.</p>\n\n<h2>A troca inevitável</h2>\n<p>Um pacote estreito exige muitas ondas diferentes, ou seja, muitos momentos possíveis. Um pacote feito de poucas ondas é largo. Essa relação entre as duas larguras é a relação de Heisenberg:</p>\n<div class='formula'>Δx · Δp ≥ ħ / 2</div>\n<p>Ela não diz que o aparelho atrapalha. Diz que não existe estado em que posição e momento sejam ambos precisos, do mesmo jeito que não existe um som que seja ao mesmo tempo um estalo curtíssimo e uma nota pura.</p>\n\n<div class='example'><span class='tag'>Exemplo</span>\n<p>Um elétron confinado em 0,1 nm (o tamanho de um átomo) tem incerteza de velocidade de pelo menos ħ / (2·m·Δx) ≈ 580 km/s. Ele não pode estar parado dentro do átomo.</p></div>\n\n<h2>O pacote se desfaz</h2>\n<p>Como o pacote contém vários momentos, suas partes andam em velocidades diferentes e ele se alarga com o tempo. Quanto mais estreito no começo, mais rápido se espalha. Para o elétron do exemplo, a largura dobra em uma fração de femtossegundo.</p>\n\n<h2>Por que não percebemos</h2>\n<p>A massa aparece no denominador. Para um grão de poeira de um micrograma localizado em 0,1 nm, a incerteza de velocidade é da ordem de 10⁻¹⁶ m/s: em mil anos ele se espalharia menos de dois centésimos de milímetro. Objetos do dia a dia têm posição e velocidade bem definidas para todos os efeitos práticos.</p>\n\n<div class='callout'><span class='tag'>Erro comum</span>\n<p>A incerteza não é ignorância sobre um valor que existe escondido. Experimentos como os de Bell mostram que os valores não estão definidos antes da medida.</p></div>\n",
+    "relatedIds": [
+      "fenda-dupla",
+      "poco-potencial",
+      "oscilador-quantico"
+    ],
+    "simulation": {
+      "component": "principio-incerteza",
+      "subtitle": "Pacote de onda e a relação de Heisenberg",
+      "about": "Arraste a borda do pacote para apertá-lo ou alargá-lo e veja a distribuição de momentos fazer o contrário. O gráfico da direita mostra a troca: nenhum estado fica abaixo da curva. Ligue a evolução no tempo para ver o pacote livre se espalhar, e troque a partícula para comparar um elétron com um grão de poeira.",
+      "presets": [
+        {
+          "label": "Tamanho de um átomo (0,05 nm)",
+          "values": {
+            "sigma": 0.05,
+            "evoluir": 0
+          }
+        },
+        {
+          "label": "Pacote médio (0,5 nm)",
+          "values": {
+            "sigma": 0.5,
+            "evoluir": 0
+          }
+        },
+        {
+          "label": "Pacote largo (2 nm)",
+          "values": {
+            "sigma": 2,
+            "evoluir": 0
+          }
+        }
+      ],
+      "controls": [
+        {
+          "id": "sigma",
+          "label": "Largura do pacote Δx",
+          "unit": "nm",
+          "min": 0.05,
+          "max": 2,
+          "default": 0.5,
+          "step": 0.05
+        },
+        {
+          "id": "k0",
+          "label": "Momento médio p/ħ",
+          "unit": "nm⁻¹",
+          "min": 0,
+          "max": 10,
+          "default": 5,
+          "step": 0.5
+        },
+        {
+          "id": "particula",
+          "type": "select",
+          "label": "Partícula",
+          "default": 0,
+          "options": [
+            {
+              "value": 0,
+              "label": "Elétron"
+            },
+            {
+              "value": 1,
+              "label": "Próton"
+            },
+            {
+              "value": 2,
+              "label": "Grão de poeira"
+            }
+          ]
+        },
+        {
+          "id": "evoluir",
+          "type": "toggle",
+          "label": "Deixar o pacote evoluir no tempo",
+          "on": 1,
+          "off": 0,
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "polarizacao-fotons",
+    "topic": "Física Quântica",
+    "title": "Polarização: o Paradoxo dos Três Filtros",
+    "summary": "Dois polarizadores cruzados bloqueiam toda a luz. Coloque um terceiro entre eles e a luz volta. O experimento mais barato para ver a medida quântica mudando o estado.",
+    "image": "",
+    "level": "Iniciante",
+    "concepts": [
+      "Polarização",
+      "Lei de Malus",
+      "Fóton",
+      "Medida quântica",
+      "Probabilidade"
+    ],
+    "content": "\n<p>A luz é uma onda que vibra de lado, perpendicular à direção em que viaja. Um polarizador é um filtro que só deixa passar a vibração ao longo de um eixo. Óculos de sol polarizados e telas de cristal líquido funcionam assim.</p>\n\n<h2>A lei de Malus</h2>\n<p>Se a luz já está polarizada e encontra um segundo polarizador girado de um ângulo θ, a intensidade que passa é:</p>\n<div class='formula'>I = I₀ · cos²θ</div>\n<p>Com os eixos alinhados passa tudo. Com os eixos a 90° (cruzados), não passa nada.</p>\n\n<h2>Um fóton de cada vez</h2>\n<p>A luz é feita de fótons, e um fóton não se divide. Diante do polarizador ele passa inteiro ou é absorvido. A lei de Malus vira uma regra de probabilidade: cada fóton passa com chance cos²θ. E quem passa sai polarizado <em>no eixo do polarizador</em>, qualquer que fosse a sua direção antes.</p>\n\n<h2>O paradoxo dos três filtros</h2>\n<p>Com dois polarizadores cruzados, a 0° e 90°, tudo escuro. Agora coloque um terceiro entre os dois, a 45°. A intuição diz que mais um filtro só pode bloquear mais. O que acontece é o contrário: a luz reaparece.</p>\n<div class='example'><span class='tag'>Fazendo a conta</span>\n<p>Depois do primeiro, os fótons estão a 0°. No do meio, a 45°, passam cos²45° = 50 %, e saem a 45°. No último, a 90°, o ângulo entre o fóton e o eixo é outra vez 45°: passam mais 50 %. No fim chega 25 % do que saiu do primeiro polarizador.</p></div>\n\n<h2>O que isso mostra</h2>\n<p>O polarizador do meio não seleciona fótons que \"já estavam\" a 45°. Ele faz uma medida, e a medida deixa o fóton num estado novo. É a mesma regra do experimento de Stern–Gerlach, com um material que cabe no bolso: três pedaços de filme polarizador.</p>\n",
+    "relatedIds": [
+      "stern-gerlach",
+      "entrelaçamento-quantico",
+      "efeito-fotoeletrico"
+    ],
+    "simulation": {
+      "component": "polarizacao-fotons",
+      "subtitle": "Polarizadores, um fóton de cada vez",
+      "about": "A simulação começa com dois polarizadores cruzados: nada chega ao detector. Coloque o do meio e gire-o arrastando a ponta do eixo. Cada fóton passa inteiro ou é absorvido, com chance cos²θ, e sai polarizado no eixo do polarizador que atravessou. As barras comparam a contagem real com a previsão em cada etapa.",
+      "presets": [
+        {
+          "label": "Paralelos (0° e 0°)",
+          "values": {
+            "angulo3": 0,
+            "meio": 0
+          }
+        },
+        {
+          "label": "Malus a 60°",
+          "values": {
+            "angulo3": 60,
+            "meio": 0
+          }
+        },
+        {
+          "label": "Cruzados (0° e 90°)",
+          "values": {
+            "angulo3": 90,
+            "meio": 0
+          }
+        },
+        {
+          "label": "Cruzados + 45° no meio",
+          "values": {
+            "angulo3": 90,
+            "meio": 1,
+            "angulo2": 45
+          }
+        }
+      ],
+      "controls": [
+        {
+          "id": "meio",
+          "type": "toggle",
+          "label": "Colocar o polarizador do meio",
+          "on": 1,
+          "off": 0,
+          "default": 0
+        },
+        {
+          "id": "angulo2",
+          "label": "Ângulo do polarizador do meio",
+          "unit": "°",
+          "min": 0,
+          "max": 180,
+          "default": 45,
+          "step": 5
+        },
+        {
+          "id": "angulo3",
+          "label": "Ângulo do último polarizador",
+          "unit": "°",
+          "min": 0,
+          "max": 180,
+          "default": 90,
+          "step": 5
+        },
+        {
+          "id": "taxa",
+          "label": "Fótons por segundo",
+          "unit": "",
+          "min": 10,
+          "max": 80,
+          "default": 40,
+          "step": 5
+        }
+      ]
+    }
   }
 ];

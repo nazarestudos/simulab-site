@@ -83,6 +83,13 @@ export const SIMULATION_REGISTRY = {
   'emaranhamento':          lazy(() => import('./fisica-quantica/emaranhamento')),
   'schrodinger-cat':        lazy(() => import('./fisica-quantica/schrodinger-cat')),
   'efeito-fotoeletrico':    lazy(() => import('./fisica-quantica/efeito-fotoeletrico')),
+  'atomo-bohr':             lazy(() => import('./fisica-quantica/atomo-bohr')),
+  'decaimento-radioativo':  lazy(() => import('./fisica-quantica/decaimento-radioativo')),
+  'stern-gerlach':          lazy(() => import('./fisica-quantica/stern-gerlach')),
+  'poco-potencial':         lazy(() => import('./fisica-quantica/poco-potencial')),
+  'oscilador-quantico':     lazy(() => import('./fisica-quantica/oscilador-quantico')),
+  'principio-incerteza':    lazy(() => import('./fisica-quantica/principio-incerteza')),
+  'polarizacao-fotons':     lazy(() => import('./fisica-quantica/polarizacao-fotons')),
 }
 
 export function getSimulationCanvas(component) {

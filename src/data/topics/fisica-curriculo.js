@@ -169,11 +169,12 @@ export const ARTIGOS = [
     "simulation": {
       "component": "lancamento-projetil",
       "subtitle": "Lançamento de Projétil",
-      "about": "A composição de dois movimentos independentes, tornada visível: na horizontal o projétil faz MRU (vₓ constante — nada o acelera de lado), e na vertical faz MRUV (v_y puxado pela gravidade). O resultado é a parábola. Os vetores das duas componentes aparecem no projétil em voo, e o HUD calcula tempo de voo, altura máxima e alcance pelas fórmulas exatas. A trajetória de 45° fica em tracejado como referência: dá para ver na hora que nenhum outro ângulo alcança mais longe. Reduza a gravidade para ver como seria na Lua.",
+      "about": "Dois movimentos independentes somados: na horizontal a velocidade não muda (nada empurra de lado) e na vertical a gravidade puxa o tempo todo. As marcas brancas mostram a posição a cada 0,25 s — repare nos tracinhos âmbar no chão, igualmente espaçados, enquanto na altura as marcas se apertam perto do topo. Arraste a ponta do canhão para mudar ângulo e velocidade; os tiros anteriores ficam desenhados para comparar (teste 30° e 60°: caem no mesmo lugar). Ligue a resistência do ar e o projétil vira uma bola de futebol: a curva deixa de ser simétrica, o alcance encolhe e o melhor ângulo fica abaixo de 45°.",
       "icon": "zap",
       "iconColor": "#8a97a6",
       "presets": [{"label": "Terra", "values": {"gravidade": 9.8}}, {"label": "Lua", "values": {"gravidade": 1.6}}, {"label": "Marte", "values": {"gravidade": 3.7}}, {"label": "Júpiter", "values": {"gravidade": 24.8}}],
       "controls": [
+        {"id": "ar", "type": "toggle", "label": "Resistência do ar (bola de futebol)", "on": 1, "off": 0, "default": 0},
         {
           "id": "v0",
           "label": "Velocidade inicial (v₀)",
@@ -525,9 +526,10 @@ export const ARTIGOS = [
     "simulation": {
       "component": "empuxo",
       "subtitle": "Empuxo e Flutuação",
-      "about": "O bloco encontra sozinho sua profundidade de equilíbrio, e o resultado é a relação mais elegante da hidrostática: a fração submersa é exatamente a razão entre as densidades (V_sub/V = ρ_obj/ρ_líq). Ajuste as duas densidades e veja o peso (para baixo) e o empuxo (para cima) se equilibrarem — ou não. Coloque o objeto em 917 kg/m³ (gelo) num líquido de 1025 (água do mar) e encontre os ~89 % submersos que escondem o iceberg. Passe a densidade do objeto acima da do líquido e ele afunda.",
+      "about": "Um cubo de 1 m³ num tanque de 4 m de largura, com a 2ª Lei integrada de verdade: o bloco cai, mergulha, balança e só então assenta. Arraste o bloco para cima ou para baixo e solte. As setas finas azuis mostram de onde vem o empuxo: a pressão cresce com a profundidade, então a face de baixo é mais empurrada que a de cima. Repare que o nível da água sobe — é o volume submerso deslocando líquido, o que Arquimedes notou na banheira. Flutuando, a fração submersa é exatamente a razão entre as densidades; passe a densidade do objeto acima da do líquido e nem o empuxo máximo alcança o peso.",
       "icon": "waves",
       "iconColor": "#8a97a6",
+      "presets": [{"label": "Isopor", "values": {"densidadeObjeto": 100, "densidadeLiquido": 1000}}, {"label": "Madeira", "values": {"densidadeObjeto": 600, "densidadeLiquido": 1000}}, {"label": "Iceberg no mar", "values": {"densidadeObjeto": 920, "densidadeLiquido": 1025}}, {"label": "Pessoa no Mar Morto", "values": {"densidadeObjeto": 990, "densidadeLiquido": 1240}}, {"label": "Alumínio", "values": {"densidadeObjeto": 2700, "densidadeLiquido": 1000}}],
       "controls": [
         {
           "id": "densidadeObjeto",
@@ -771,9 +773,10 @@ export const ARTIGOS = [
     "simulation": {
       "component": "lentes",
       "subtitle": "Lentes e Formação de Imagem",
-      "about": "Traçado de raios de verdade, com a equação dos pontos conjugados (1/f = 1/p + 1/p'). Dois raios notáveis bastam: o paralelo ao eixo, que refrata passando pelo foco, e o que passa pelo centro óptico sem desviar — onde eles se cruzam está a imagem. Aproxime o objeto para dentro da distância focal e veja a imagem virar virtual, direita e ampliada: é exatamente a lupa. Troque para lente divergente e a imagem será sempre virtual e reduzida. Coloque o objeto exatamente no foco para ver os raios saírem paralelos (imagem no infinito).",
+      "about": "Três raios saem da ponta do objeto: o paralelo ao eixo (sai pelo foco), o que passa pelo centro (não desvia) e o que passa pelo foco (sai paralelo). Onde eles se cruzam está a imagem; quando se afastam depois da lente, quem se cruza são os prolongamentos tracejados, e a imagem é virtual. Arraste o objeto pelo eixo e passe pelos pontos 2F e F para ver a imagem mudar de menor para igual, maior e, dentro do foco, virtual — é a lupa. Arraste também o foco F para trocar a força da lente. O gráfico de baixo mostra onde a imagem se forma para cada posição do objeto: uma hipérbole que dispara para o infinito exatamente no foco.",
       "icon": "sun",
       "iconColor": "#8a97a6",
+      "presets": [{"label":"Câmera (além de 2F)","values":{"distanciaObjeto":50,"distanciaFocal":15,"tipoLente":0}},{"label":"Mesmo tamanho (em 2F)","values":{"distanciaObjeto":30,"distanciaFocal":15,"tipoLente":0}},{"label":"Projetor (entre F e 2F)","values":{"distanciaObjeto":20,"distanciaFocal":15,"tipoLente":0}},{"label":"Lupa (dentro do foco)","values":{"distanciaObjeto":9,"distanciaFocal":15,"tipoLente":0}},{"label":"Óculos de míope","values":{"distanciaObjeto":30,"distanciaFocal":20,"tipoLente":100}}],
       "controls": [
         {
           "id": "distanciaObjeto",

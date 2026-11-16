@@ -6,107 +6,253 @@
 //
 //   a = (m₁ − m₂)·g / (m₁ + m₂)      T = 2·m₁·m₂·g / (m₁ + m₂)
 //
-// Quando as massas são iguais, a = 0 (equilíbrio). Quando muito
-// diferentes, a → g (queda quase livre). Foi assim que Atwood, no século
-// XVIII, "desacelerou" a gravidade para poder medi-la à mão.
+// A simulação repete o experimento de George Atwood (1784): o bloco
+// pesado parte do repouso, cai uma altura conhecida e um cronômetro mede
+// o tempo. Com massas quase iguais a queda fica lenta o bastante para
+// cronometrar à mão — e de h = ½·a·t² sai a gravidade:
+//
+//   g = 2h·(m₁ + m₂) / ((m₁ − m₂)·t²)
+//
+// O "g medido" do painel é calculado assim, a partir do tempo que a
+// própria simulação levou. Ele bate com 9,8 m/s².
 // ═══════════════════════════════════════════════════════════════════
 import { useCallback } from 'react'
 import {
   SimCanvas, C, Q, ACCENT, clear, text, caption, readout,
-  arrow, hexA, clamp,
+  arrow, block, massSide, ground, ruler, handle, plot, hexA, clamp,
 } from '../engine'
 
 const A = ACCENT['fisica-classica']
 const G = 9.8
+const H = 1.0        // m — cada bloco pode subir ou descer 1 m a partir do meio
+const PAUSE = 1.6    // s parado no chão antes de rearmar
+
+function geom(view) {
+  const { w, h } = view
+  const compact = w < 640
+  const stageW = compact ? w : w * 0.52
+  const cx = stageW * 0.54
+  const rP = 30
+  const pulleyY = 92
+  const floorY = h - 40
+  const ppm = clamp((floorY - pulleyY - rP - 78) / (2 * H), 40, 130)
+  return { compact, stageW, cx, rP, pulleyY, floorY, ppm }
+}
+
+const accel = (m1, m2) => ((m1 - m2) / (m1 + m2)) * G   // + = m₁ desce
 
 export default function AtwoodCanvas({ params, running, resetKey }) {
-  const setup = useCallback(() => ({ y: 0, v: 0 }), [])
+  const arm = (s, m1, m2) => {
+    const a = accel(m1, m2)
+    s.m1 = m1; s.m2 = m2
+    s.y = a === 0 ? 0 : -Math.sign(a) * H    // o mais pesado começa no alto
+    s.v = 0
+    s.t = 0                // cronômetro desta queda
+    s.landed = false
+    s.wait = 0
+    s.hist = []
+    s.drop = 2 * H         // altura de queda desta rodada
+  }
+
+  const setup = useCallback((view, p) => {
+    const s = { drag: null, hover: null, moved: false, last: null }
+    arm(s, p.massa1 ?? 3, p.massa2 ?? 2)
+    return s
+  }, [])
 
   const step = useCallback((s, dt, p) => {
-    const m1 = p.massa1 ?? 3
-    const m2 = p.massa2 ?? 2
-    const a = ((m1 - m2) / (m1 + m2)) * G      // + = m1 desce
+    const m1 = p.massa1 ?? 3, m2 = p.massa2 ?? 2
+    if (m1 !== s.m1 || m2 !== s.m2) { arm(s, m1, m2); return }
+    if (s.drag) return
+
+    const a = accel(m1, m2)
+    if (s.landed) {
+      s.wait += dt
+      if (s.wait > PAUSE) arm(s, m1, m2)
+      return
+    }
+    if (a === 0) return
+
     s.v += a * dt
     s.y += s.v * dt
-    if (Math.abs(s.y) > 2.2) { s.y = 0; s.v = 0 }   // reinicia a "corrida"
+    s.t += dt
+    if (Math.abs(s.y) >= H && Math.sign(s.y) === Math.sign(a)) {
+      // tocou o chão: registra o tempo e calcula g como Atwood faria
+      s.y = Math.sign(a) * H
+      s.landed = true
+      s.wait = 0
+      const gMeas = (2 * s.drop * (m1 + m2)) / (Math.abs(m1 - m2) * s.t * s.t)
+      s.last = { t: s.t, g: gMeas, v: Math.abs(s.v) }
+      s.hist.push([s.t, Math.abs(s.v)])   // o último ponto fica no gráfico
+      s.v = 0
+      return
+    }
+    if (s.hist.length === 0 || s.t - s.hist[s.hist.length - 1][0] > 0.02) {
+      s.hist.push([s.t, Math.abs(s.v)])
+    }
   }, [])
 
   const render = useCallback((ctx, s, p, view) => {
     const { w, h } = view
     clear(ctx, view)
 
-    const m1 = p.massa1 ?? 3
-    const m2 = p.massa2 ?? 2
-    const a = ((m1 - m2) / (m1 + m2)) * G
+    const m1 = s.m1, m2 = s.m2
+    const a = accel(m1, m2)
     const T = (2 * m1 * m2 * G) / (m1 + m2)
+    const { compact, stageW, cx, rP, pulleyY, floorY, ppm } = geom(view)
 
-    // ── Geometria ─────────────────────────────────────────────────
-    const cx = w * 0.5
-    const pulleyY = h * 0.16
-    const rP = 44
-    const gap = rP                       // os fios descem na vertical, tangentes à polia
-    const ppm = (h * 0.5) / 2.5          // px por metro de deslocamento
-    const restY = h * 0.44               // altura de repouso dos blocos
+    // ── Chão, teto e régua ────────────────────────────────────────
+    ground(ctx, 14, stageW - 8, floorY)
+    ground(ctx, cx - 70, cx + 70, pulleyY - rP - 14, { drop: -8 })
+    ruler(ctx, cx - rP - 96, floorY, floorY - 2 * H * ppm, 0, 2 * H, { every: 0.25, labelEvery: 2 })
 
-    // suporte + polia
-    ctx.strokeStyle = C.faint; ctx.lineWidth = 1.4
-    ctx.beginPath(); ctx.moveTo(cx - 60, pulleyY - rP - 8); ctx.lineTo(cx + 60, pulleyY - rP - 8); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(cx, pulleyY - rP - 8); ctx.lineTo(cx, pulleyY - rP); ctx.stroke()
-    ctx.strokeStyle = hexA(A, 0.8); ctx.lineWidth = 2
-    ctx.beginPath(); ctx.arc(cx, pulleyY, rP, 0, Math.PI * 2); ctx.stroke()
-    ctx.fillStyle = C.dim
-    ctx.beginPath(); ctx.arc(cx, pulleyY, 3, 0, Math.PI * 2); ctx.fill()
+    // suporte da polia
+    ctx.strokeStyle = C.line
+    ctx.lineWidth = 2
+    ctx.beginPath(); ctx.moveTo(cx, pulleyY - rP - 14); ctx.lineTo(cx, pulleyY); ctx.stroke()
 
-    // posições dos blocos (m1 à esquerda, desce quando y>0)
-    const y1 = restY + s.y * ppm
-    const y2 = restY - s.y * ppm
-    const x1 = cx - gap, x2 = cx + gap
+    // ── Blocos: a altura do FUNDO acima do chão é H − y e H + y ───
+    const s1 = massSide(m1), s2 = massSide(m2)
+    const x1 = cx - rP, x2 = cx + rP
+    const top1 = floorY - (H - s.y) * ppm - s1
+    const top2 = floorY - (H + s.y) * ppm - s2
 
-    // fios
-    ctx.strokeStyle = hexA(C.ink, 0.4); ctx.lineWidth = 1.3
-    ctx.beginPath(); ctx.moveTo(cx - rP, pulleyY); ctx.lineTo(x1, y1); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(cx + rP, pulleyY); ctx.lineTo(x2, y2); ctx.stroke()
+    // fio: dois trechos verticais + o arco sobre a polia
+    ctx.strokeStyle = hexA(C.ink, 0.7)
+    ctx.lineWidth = 1.4
+    ctx.beginPath()
+    ctx.moveTo(x1, top1); ctx.lineTo(x1, pulleyY)
+    ctx.arc(cx, pulleyY, rP, Math.PI, 0)
+    ctx.lineTo(x2, top2)
+    ctx.stroke()
 
-    // blocos (lado ∝ ∛m)
-    const drawBloco = (x, y, m, label) => {
-      const bs = clamp(20 + Math.cbrt(m) * 9, 24, 58)
-      ctx.fillStyle = hexA(A, 0.2)
-      ctx.fillRect(x - bs / 2, y, bs, bs)
-      ctx.strokeStyle = hexA(A, 0.85); ctx.lineWidth = 1.3
-      ctx.strokeRect(x - bs / 2 + 0.5, y + 0.5, bs, bs)
-      text(ctx, `${m} kg`, x, y + bs / 2 + 4, { size: 9.5, weight: 700, color: C.ink, align: 'center' })
-      text(ctx, label, x, y - 8, { size: 9, weight: 700, color: A, align: 'center' })
-      // vetores peso e tração
-      const fs = 64 / (Math.max(m1, m2) * G)   // o maior peso mede 64 px
-      arrow(ctx, x, y + bs, x, y + bs + m * G * fs, { color: hexA(C.ink, 0.4), width: 1.5, label: 'P' })
-      arrow(ctx, x, y, x, y - T * fs, { color: Q.force, width: 1.7, label: 'T' })
+    // polia: gira com o fio (ângulo = deslocamento / raio)
+    const rot = (s.y * ppm) / rP
+    ctx.strokeStyle = A
+    ctx.lineWidth = 2
+    ctx.beginPath(); ctx.arc(cx, pulleyY, rP - 4, 0, Math.PI * 2); ctx.stroke()
+    ctx.lineWidth = 1.2
+    ctx.strokeStyle = hexA(A, 0.7)
+    for (let k = 0; k < 4; k++) {
+      const an = -rot + (k * Math.PI) / 2
+      ctx.beginPath()
+      ctx.moveTo(cx, pulleyY)
+      ctx.lineTo(cx + Math.cos(an) * (rP - 4), pulleyY + Math.sin(an) * (rP - 4))
+      ctx.stroke()
     }
-    drawBloco(x1, y1, m1, 'm₁')
-    drawBloco(x2, y2, m2, 'm₂')
+    ctx.fillStyle = C.ink
+    ctx.fillRect(cx - 3, pulleyY - 3, 6, 6)
+
+    // vetores: o peso maior mede 62 px; a tração sai na mesma escala
+    const fs = 62 / (Math.max(m1, m2) * G)
+    const drawBody = (x, top, side, m, name, id) => {
+      const cy = top + side / 2
+      arrow(ctx, x, top + side, x, top + side + m * G * fs, { color: hexA(C.ink, 0.55), width: 1.8 })
+      arrow(ctx, x, top, x, top - T * fs, { color: Q.force, width: 2.2 })
+      block(ctx, x, cy, side, A, `${String(m).replace('.', ',')} kg`, { active: s.drag === id })
+      const lx = x + (id === 1 ? -1 : 1) * (side / 2 + 10)
+      text(ctx, name, lx, cy + 4, { size: 11, weight: 700, color: A, align: id === 1 ? 'right' : 'left' })
+      handle(ctx, x, cy, side / 2 - 2, s.hover === id || s.drag === id, A)
+    }
+    drawBody(x1, top1, s1, m1, 'm₁', 1)
+    drawBody(x2, top2, s2, m2, 'm₂', 2)
+    text(ctx, 'T', x2 + 12, Math.min(top1, top2) - T * fs * 0.5, { size: 11, weight: 700, color: Q.force })
 
     // ── Estado ────────────────────────────────────────────────────
-    const est = Math.abs(m1 - m2) < 1e-9
-      ? { t: 'EQUILÍBRIO — massas iguais, a = 0', c: Q.potential }
-      : { t: `${m1 > m2 ? 'm₁' : 'm₂'} desce (a favor da massa maior)`, c: Q.kinetic }
+    const est = a === 0
+      ? { t: 'Massas iguais: equilíbrio, nada acelera', c: Q.potential }
+      : s.landed
+        ? { t: s.last ? `Chegou ao chão em ${s.last.t.toFixed(2).replace('.', ',')} s` : 'No chão', c: Q.warn }
+        : { t: `Desce ${a > 0 ? 'm₁' : 'm₂'}, com ${(Math.abs(a) / G * 100).toFixed(0)}% da aceleração de queda livre`, c: Q.kinetic }
     caption(ctx, est.t, 16, 24, est.c)
+    if (!s.moved) caption(ctx, 'Arraste um bloco para cima e solte', 16, h - 14, C.dim)
 
-    // ── HUD ───────────────────────────────────────────────────────
+    // ── Leituras ──────────────────────────────────────────────────
     readout(ctx, w - 14, 14, [
-      { k: 'm₁', v: `${m1} kg`, c: A },
-      { k: 'm₂', v: `${m2} kg`, c: A },
-      { k: 'a  aceleração', v: `${Math.abs(a).toFixed(2)} m/s²`, c: Q.kinetic },
-      { k: 'T  tração', v: `${T.toFixed(1)} N`, c: Q.force },
-      { k: 'P₁ = m₁g', v: `${(m1 * G).toFixed(1)} N` },
-      { k: 'P₂ = m₂g', v: `${(m2 * G).toFixed(1)} N` },
-      { k: 'a / g', v: `${(Math.abs(a) / G * 100).toFixed(0)} %` },
+      { k: 'a  aceleração',  v: `${Math.abs(a).toFixed(2)} m/s²`, c: Q.kinetic },
+      { k: 'T  tração',      v: `${T.toFixed(1)} N`, c: Q.force },
+      { k: 'P₁ = m₁g',       v: `${(m1 * G).toFixed(1)} N` },
+      { k: 'P₂ = m₂g',       v: `${(m2 * G).toFixed(1)} N` },
+      { k: 'cronômetro',     v: `${s.t.toFixed(2)} s`, c: A },
+      { k: 'v  agora',       v: `${Math.abs(s.v).toFixed(2)} m/s`, c: Q.velocity },
+      { k: 'queda anterior', v: s.last ? `${s.last.t.toFixed(2)} s` : '—' },
+      { k: 'g  medido',      v: s.last ? `${s.last.g.toFixed(2)} m/s²` : '—', c: Q.warn },
     ], { title: 'a = (m₁−m₂)g/(m₁+m₂)', anchor: 'right', accent: A, minWidth: 206 })
 
-    caption(ctx, 'a tração é a mesma nos dois fios (fio ideal)', 16, h - 16, C.muted)
+    if (compact) return
+
+    // ── v(t): uma reta — a inclinação É a aceleração ──────────────
+    const gx = stageW + 46
+    const gw = w - gx - 22
+    const tEnd = a === 0 ? 2 : Math.sqrt((2 * s.drop) / Math.abs(a))
+    const vEnd = Math.abs(a) * tEnd
+    caption(ctx, 'Velocidade na queda', gx, 26, A)
+    plot(ctx, { x: gx, y: 38, w: gw, h: h * 0.30 }, {
+      xDomain: [0, Math.max(0.5, tEnd * 1.08)], yDomain: [0, Math.max(0.5, vEnd * 1.15)],
+      xTicks: 3, yTicks: 3,
+      fmtX: t => `${t.toFixed(1)} s`, fmtY: v => v.toFixed(1),
+      yLabel: 'v (m/s)',
+      series: [
+        { points: [[0, 0], [tEnd, vEnd]], color: C.faint, width: 1.5, dash: [4, 4] },
+        { points: s.hist, color: Q.velocity, width: 2.4, fill: true },
+      ],
+      markers: s.hist.length
+        ? [{ x: s.hist[s.hist.length - 1][0], y: s.hist[s.hist.length - 1][1], color: Q.velocity, r: 4 }]
+        : [],
+    })
+
+    // ── a/g contra a razão das massas: o truque de Atwood ─────────
+    const py0 = h * 0.30 + 96
+    const ph  = h - py0 - 40
+    const ratio = Math.min(m1, m2) / Math.max(m1, m2)
+    const curve = []
+    for (let x = 0.1; x <= 1.0001; x += 0.03) curve.push([x, (1 - x) / (1 + x)])
+    caption(ctx, 'Quanto mais parecidas, mais lenta a queda', gx, py0 - 12, A)
+    plot(ctx, { x: gx, y: py0, w: gw, h: ph }, {
+      xDomain: [0.1, 1], yDomain: [0, 0.9],
+      xTicks: 3, yTicks: 3,
+      fmtX: x => x.toFixed(1), fmtY: y => y.toFixed(1),
+      xLabel: 'massa leve ÷ massa pesada', yLabel: 'a / g',
+      series: [{ points: curve, color: Q.kinetic, width: 2, fill: true }],
+      markers: [{ x: Math.max(0.1, ratio), y: Math.abs(a) / G, color: Q.warn, r: 4.5 }],
+    })
+  }, [])
+
+  // Levantar um bloco "arma" o experimento; ao soltar, a queda começa
+  // dali, do repouso, e a altura de queda passa a ser a que sobrou.
+  const onPointer = useCallback((kind, pt, s, p, view) => {
+    if (!s) return null
+    const { cx, rP, floorY, ppm } = geom(view)
+    const s1 = massSide(s.m1), s2 = massSide(s.m2)
+    const c1 = [cx - rP, floorY - (H - s.y) * ppm - s1 / 2]
+    const c2 = [cx + rP, floorY - (H + s.y) * ppm - s2 / 2]
+    const over = Math.hypot(pt.x - c1[0], pt.y - c1[1]) < s1 / 2 + 10 ? 1
+               : Math.hypot(pt.x - c2[0], pt.y - c2[1]) < s2 / 2 + 10 ? 2 : null
+
+    if (kind === 'down' && over) { s.drag = over; s.landed = false }
+    if (kind === 'up' && s.drag) {
+      const a = accel(s.m1, s.m2)
+      s.drag = null
+      s.v = 0; s.t = 0; s.hist = []; s.landed = false; s.wait = 0
+      // altura que o bloco pesado ainda tem para cair
+      s.drop = a > 0 ? H - s.y : H + s.y
+      if (s.drop < 0.05) s.landed = true      // solto já no chão: nada a cair
+    }
+    if (s.drag) {
+      const side = s.drag === 1 ? s1 : s2
+      const bottomH = clamp((floorY - pt.y - side / 2) / ppm, 0, 2 * H)   // altura do fundo
+      s.y = s.drag === 1 ? H - bottomH : bottomH - H
+      s.v = 0
+      s.moved = true
+      return 'grab'
+    }
+    s.hover = over
+    return over ? 'grab' : null
   }, [])
 
   return (
     <SimCanvas
-      setup={setup} step={step} render={render}
+      setup={setup} step={step} render={render} onPointer={onPointer}
       params={params} running={running} resetKey={resetKey}
     />
   )

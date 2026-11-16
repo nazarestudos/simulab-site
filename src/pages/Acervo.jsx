@@ -11,6 +11,7 @@ import { ArticleCard, ArticleListRow } from '../components/ArticleCard'
 import { BlurReveal, EASE } from '../components/Reveal'
 import CategoryFilter from '../components/CategoryFilter'
 import Pagination from '../components/Pagination'
+import { HoverPreview } from '../components/SimLive'
 
 const ITEMS_PER_PAGE = 9
 
@@ -45,7 +46,9 @@ export default function Acervo() {
   const [sort,      setSort]      = useState('padrao')
   const [simOnly,   setSimOnly]   = useState(searchParams.get('sim') === '1')
   const [page,      setPage]      = useState(1)
-  const [view,      setView]      = useState('list')
+  // Quem chega pedindo simulações vê as simulações: grade com prévias vivas.
+  const [view,      setView]      = useState(searchParams.get('sim') === '1' ? 'grid' : 'list')
+  const [hoverSim,  setHoverSim]  = useState(null)
 
   const filtered = useMemo(() => {
     let list = ARTIGOS
@@ -222,10 +225,15 @@ export default function Acervo() {
               animate="visible"
               exit="exit"
               className="border-t-2 border-white mb-12"
+              onMouseLeave={() => setHoverSim(null)}
             >
               {pageItems.map((article, i) => (
                 <motion.div key={article.id} variants={itemVariants}>
-                  <ArticleListRow article={article} index={(currentPage - 1) * ITEMS_PER_PAGE + i} />
+                  <ArticleListRow
+                    article={article}
+                    index={(currentPage - 1) * ITEMS_PER_PAGE + i}
+                    onHover={setHoverSim}
+                  />
                 </motion.div>
               ))}
             </motion.div>
@@ -240,7 +248,7 @@ export default function Acervo() {
             >
               {pageItems.map(article => (
                 <motion.div key={article.id} variants={itemVariants}>
-                  <ArticleCard article={article} />
+                  <ArticleCard article={article} direct={simOnly} />
                 </motion.div>
               ))}
             </motion.div>
@@ -267,6 +275,9 @@ export default function Acervo() {
       {totalPages > 1 && (
         <Pagination current={currentPage} total={totalPages} onChange={setPage} />
       )}
+
+      {/* Na lista, a simulação do artigo aparece viva ao lado do cursor. */}
+      <HoverPreview article={view === 'list' ? hoverSim : null} />
     </div>
   )
 }

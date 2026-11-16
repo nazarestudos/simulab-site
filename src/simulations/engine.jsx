@@ -128,9 +128,28 @@ export function text(ctx, str, x, y, opts = {}) {
 }
 
 /** Legenda de estado/seção: frase curta, só a inicial maiúscula. */
-export function caption(ctx, str, x, y, color = C.muted) {
-  const s = String(str)
-  text(ctx, s.charAt(0).toUpperCase() + s.slice(1), x, y, { size: 9.5, weight: 500, color })
+export function caption(ctx, str, x, y, color = C.muted, maxW) {
+  const raw = String(str)
+  const s = raw.charAt(0).toUpperCase() + raw.slice(1)
+  const lh = fitSize(ctx, 9.5) + 4
+  if (ctx.canvas.__bare) return y + lh
+  // Em telas estreitas a frase não cabe numa linha: quebra em até duas,
+  // em vez de sair cortada pela borda do palco.
+  const room = maxW ?? (ctx.canvas.clientWidth || 720) / (ctx.canvas.__zoom || 1) - x - 12
+  ctx.font = fontOf(ctx, 9.5, 500)
+  let lines = [s]
+  if (ctx.measureText(s).width > room) {
+    const words = s.split(' ')
+    let first = ''
+    let i = 0
+    while (i < words.length && ctx.measureText(first ? `${first} ${words[i]}` : words[i]).width <= room) {
+      first = first ? `${first} ${words[i]}` : words[i]
+      i++
+    }
+    if (first && i < words.length) lines = [first, words.slice(i).join(' ')]
+  }
+  lines.forEach((ln, k) => text(ctx, ln, x, y + k * lh, { size: 9.5, weight: 500, color }))
+  return y + lines.length * lh      // linha livre seguinte, para quem empilha legendas
 }
 
 // ── Leituras ─────────────────────────────────────────────────────
@@ -246,6 +265,100 @@ export function handle(ctx, x, y, r, active = false, color = C.ink) {
     ctx.moveTo(x + sx * d, y + sy * (d - k)); ctx.lineTo(x + sx * d, y + sy * d); ctx.lineTo(x + sx * (d - k), y + sy * d)
   }
   ctx.stroke()
+}
+
+/**
+ * Rastro: polilinha que some para trás. pts = [[x,y],…], do ponto mais
+ * antigo ao mais novo. É o que faz um movimento "ler" numa imagem parada.
+ * Desenha em faixas de opacidade (um stroke por faixa, não por ponto).
+ */
+export function trail(ctx, pts, color, opts = {}) {
+  const n = pts.length
+  if (n < 2) return
+  const bands = Math.min(opts.bands ?? 12, n - 1)
+  const peak  = opts.alpha ?? 0.85
+  ctx.lineWidth = opts.width ?? 2
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  for (let b = 0; b < bands; b++) {
+    const i0 = Math.floor((b / bands) * (n - 1))
+    const i1 = Math.floor(((b + 1) / bands) * (n - 1))
+    if (i1 <= i0) continue
+    ctx.strokeStyle = hexA(color, peak * Math.pow((b + 1) / bands, 1.7))
+    ctx.beginPath()
+    ctx.moveTo(pts[i0][0], pts[i0][1])
+    for (let i = i0 + 1; i <= i1; i++) ctx.lineTo(pts[i][0], pts[i][1])
+    ctx.stroke()
+  }
+  ctx.lineCap = 'butt'
+}
+
+/** Chão / parede fixa: linha cheia com hachuras do lado "sólido". */
+export function ground(ctx, x0, x1, y, opts = {}) {
+  const step = opts.step ?? 14
+  const drop = opts.drop ?? 9          // negativo = hachura para cima (teto)
+  ctx.strokeStyle = C.grid
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  for (let x = x0 + step; x <= x1; x += step) {
+    ctx.moveTo(x, y)
+    ctx.lineTo(x - Math.abs(drop) * 0.8, y + drop)
+  }
+  ctx.stroke()
+  ctx.strokeStyle = opts.color ?? C.line
+  ctx.lineWidth = opts.width ?? 1.5
+  ctx.beginPath()
+  ctx.moveTo(x0, y + 0.5)
+  ctx.lineTo(x1, y + 0.5)
+  ctx.stroke()
+}
+
+/**
+ * Bloco de massa: quadrado centrado em (cx, cy), tingido pela cor da área,
+ * com o rótulo dentro. O lado costuma vir de massSide(m).
+ */
+export function block(ctx, cx, cy, side, color, label, opts = {}) {
+  const x = cx - side / 2, y = cy - side / 2
+  ctx.fillStyle = hexA(color, opts.fill ?? 0.26)
+  ctx.fillRect(x, y, side, side)
+  ctx.strokeStyle = color
+  ctx.lineWidth = opts.active ? 2.2 : 1.5
+  ctx.strokeRect(x + 0.5, y + 0.5, side - 1, side - 1)
+  // faixa de cima mais clara: dá "topo" ao bloco sem recorrer a sombra
+  ctx.fillStyle = hexA(color, 0.55)
+  ctx.fillRect(x, y, side, 3)
+  if (label) text(ctx, label, cx, cy + 4, { size: 10, weight: 700, color: C.ink, align: 'center' })
+}
+
+/** Lado de um bloco ∝ ∛m: massa é volume. 8× mais massa, 2× mais alto. */
+export const massSide = (m, lo = 24, hi = 60) => clamp(16 + Math.cbrt(m) * 13, lo, hi)
+
+/**
+ * Régua vertical em unidades do mundo. De y0 (valor v0) até y1 (valor v1),
+ * com um traço a cada `every` e rótulo a cada `labelEvery` traços.
+ */
+export function ruler(ctx, x, y0, y1, v0, v1, opts = {}) {
+  const every = opts.every ?? 0.5
+  const labelEvery = opts.labelEvery ?? 2
+  const unit = opts.unit ?? 'm'
+  const side = opts.side ?? -1       // −1 rótulos à esquerda, +1 à direita
+  ctx.strokeStyle = C.line
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(x + 0.5, y0); ctx.lineTo(x + 0.5, y1)
+  const n = Math.round(Math.abs(v1 - v0) / every)
+  for (let i = 0; i <= n; i++) {
+    const y = Math.round(y0 + (i / n) * (y1 - y0)) + 0.5
+    const major = i % labelEvery === 0
+    ctx.moveTo(x, y); ctx.lineTo(x + side * (major ? 8 : 4), y)
+  }
+  ctx.stroke()
+  for (let i = 0; i <= n; i += labelEvery) {
+    const v = v0 + (i / n) * (v1 - v0)
+    const y = y0 + (i / n) * (y1 - y0)
+    text(ctx, `${Number(v.toFixed(2))} ${unit}`, x + side * 12, y + 4,
+      { size: 9, color: C.muted, align: side < 0 ? 'right' : 'left' })
+  }
 }
 
 /**
@@ -436,6 +549,27 @@ export function mix(a, b, t) {
   const c = Math.round(((pa & 255) * (1 - t)) + ((pb & 255) * t))
   return `rgb(${r},${g},${c})`
 }
+/**
+ * Cor aproximada de uma luz monocromática (comprimento de onda em nm).
+ * Devolve '#rrggbb' no visível (380–750 nm) e null fora dele — o olho
+ * não vê ultravioleta nem infravermelho, então não há cor a mostrar.
+ */
+export function wavelengthColor(nm) {
+  if (nm < 380 || nm > 750) return null
+  let r = 0, g = 0, b = 0
+  if (nm < 440)      { r = (440 - nm) / 60; b = 1 }
+  else if (nm < 490) { g = (nm - 440) / 50; b = 1 }
+  else if (nm < 510) { g = 1; b = (510 - nm) / 20 }
+  else if (nm < 580) { r = (nm - 510) / 70; g = 1 }
+  else if (nm < 645) { r = 1; g = (645 - nm) / 65 }
+  else               { r = 1 }
+  // o olho perde sensibilidade nas duas pontas do espectro
+  const edge = nm < 420 ? 0.35 + 0.65 * (nm - 380) / 40
+             : nm > 700 ? 0.35 + 0.65 * (750 - nm) / 50 : 1
+  const ch = v => Math.round(255 * Math.pow(v * edge, 0.8)).toString(16).padStart(2, '0')
+  return `#${ch(r)}${ch(g)}${ch(b)}`
+}
+
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 export const lerp  = (a, b, t) => a + (b - a) * t
 
@@ -486,7 +620,7 @@ export function gauss(rand) {
  *              (view.setParams({ id: valor })) — é como arrastar algo no
  *              palco move o slider correspondente
  */
-export const SimClock = createContext({ speed: 1, stepKey: 0, onReadout: null, zoom: null, bare: false, onParams: null })
+export const SimClock = createContext({ speed: 1, stepKey: 0, onReadout: null, zoom: null, bare: false, onParams: null, onTick: null })
 
 const READOUT_INTERVAL = 120   // ms — números mudando 60×/s não dá para ler
 
@@ -515,6 +649,7 @@ export function SimCanvas({
   const speedRef  = useRef(speed)
   const sinkRef   = useRef(onReadout)
   const paramSink = useRef(clock.onParams)
+  const tickSink  = useRef(clock.onTick)
   const stepSeen  = useRef(stepKey)
   const stepReq   = useRef(0)
 
@@ -524,6 +659,7 @@ export function SimCanvas({
   speedRef.current  = speed
   sinkRef.current   = onReadout
   paramSink.current = clock.onParams
+  tickSink.current  = clock.onTick
   if (stepKey !== stepSeen.current) { stepSeen.current = stepKey; stepReq.current += 1 }
 
   useEffect(() => {
@@ -615,10 +751,16 @@ export function SimCanvas({
       queue.length = 0
     }
 
+    // relógio da simulação → cabeçalho do palco (tempo simulado, não real)
+    let lastTick = -Infinity
     const draw = now => {
       ctx.setTransform(view.scale, 0, 0, view.scale, 0, 0)
       render(ctx, stateRef.current, paramsRef.current, view)
       flushReadouts(now)
+      if (tickSink.current && now - lastTick >= READOUT_INTERVAL) {
+        lastTick = now
+        tickSink.current(view.t)
+      }
     }
 
     view.t = 0

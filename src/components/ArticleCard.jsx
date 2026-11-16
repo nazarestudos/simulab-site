@@ -9,9 +9,11 @@
 // Regra de interação: o que abre algo "de mexer" (simulação) inverte
 // para branco no hover; o que abre leitura reage de forma mais calma.
 // ─────────────────────────────────────────────────────────────
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Play } from 'lucide-react'
 import { TOPIC_COLORS } from '../data'
+import { SimPreview } from './SimLive'
 
 function TopicDot({ topic, invertOnHover = false }) {
   const color = TOPIC_COLORS[topic] ?? '#777'
@@ -41,40 +43,69 @@ function SimIndicator() {
 }
 
 // ── Card (grade do Acervo) ───────────────────────────────────
-export function ArticleCard({ article, className = '' }) {
+// Quem tem simulação mostra a simulação: o primeiro quadro fica parado
+// e ela roda enquanto o ponteiro (ou o foco) está no card. `direct`
+// leva direto à simulação em vez do artigo.
+export function ArticleCard({ article, className = '', direct = false }) {
+  const [hot, setHot] = useState(false)
+  const hasSim = Boolean(article.simulation && typeof article.simulation === 'object')
+  const toSim = direct && hasSim
   return (
     <Link
-      to={`/acervo/${article.id}`}
-      data-cursor-label
-      className={`group flex flex-col h-full p-6 bg-sl-bg
+      to={toSim ? `/acervo/${article.id}/simulacao` : `/acervo/${article.id}`}
+      data-cursor-label={toSim ? 'Mexer' : 'Ler'}
+      onMouseEnter={() => setHot(true)}
+      onMouseLeave={() => setHot(false)}
+      onFocus={() => setHot(true)}
+      onBlur={() => setHot(false)}
+      className={`group flex flex-col h-full bg-sl-bg
                   border border-sl-border hover:border-white
                   transition-colors duration-200 ${className}`}
     >
-      <div className="flex items-center justify-between gap-3 mb-5">
-        <TopicDot topic={article.topic} />
-        {article.simulation && <SimIndicator />}
-      </div>
-      <h3 className="font-display font-700 text-sl-text text-[1.12rem] leading-[1.15] tracking-[-0.015em] mb-3 line-clamp-3">
-        {article.title}
-      </h3>
-      {article.summary && (
-        <p className="text-sl-dim text-[0.875rem] leading-relaxed line-clamp-3 flex-1">
-          {article.summary}
-        </p>
+      {hasSim && (
+        <div className="relative aspect-[16/10] border-b border-sl-border group-hover:border-white
+                        transition-colors duration-200 overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            <SimPreview article={article} running={hot} />
+          </div>
+          <span
+            className="absolute left-0 top-0 h-[3px] w-full origin-left scale-x-0
+                       group-hover:scale-x-100 transition-transform duration-300 ease-expo-out"
+            style={{ background: TOPIC_COLORS[article.topic] }}
+            aria-hidden="true"
+          />
+        </div>
       )}
-      <span className="mt-6 pt-4 border-t border-sl-border text-sl-dim text-[0.8rem]">
-        {article.level}
-      </span>
+      <div className="flex flex-col flex-1 p-6">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <TopicDot topic={article.topic} />
+          {hasSim && <SimIndicator />}
+        </div>
+        <h3 className="font-display font-700 text-sl-text text-[1.12rem] leading-[1.15] tracking-[-0.015em] mb-3 line-clamp-3">
+          {toSim ? (article.simulation.subtitle ?? article.title) : article.title}
+        </h3>
+        {article.summary && (
+          <p className={`text-sl-dim text-[0.875rem] leading-relaxed flex-1 ${hasSim ? 'line-clamp-2' : 'line-clamp-3'}`}>
+            {article.summary}
+          </p>
+        )}
+        <span className="mt-6 pt-4 border-t border-sl-border text-sl-dim text-[0.8rem]">
+          {article.level}
+        </span>
+      </div>
     </Link>
   )
 }
 
 // ── Linha da lista (Acervo) ──────────────────────────────────
-export function ArticleListRow({ article, index }) {
+// onHover(article | null): o Acervo usa para mostrar a simulação viva
+// ao lado do cursor.
+export function ArticleListRow({ article, index, onHover }) {
   return (
     <Link
       to={`/acervo/${article.id}`}
-      data-cursor-label
+      data-cursor-label="Ler"
+      onMouseEnter={onHover ? () => onHover(article.simulation ? article : null) : undefined}
       className="group relative flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-8 py-7
                  border-b border-sl-border"
     >
@@ -114,7 +145,7 @@ export function ArticleFeatureRow({ article }) {
   return (
     <Link
       to={`/acervo/${article.id}`}
-      data-cursor-label
+      data-cursor-label="Ler"
       className="group relative grid gap-4 lg:grid-cols-[1fr_22rem] lg:gap-12 lg:items-end py-9
                  border-b border-sl-border"
     >
@@ -148,7 +179,7 @@ export function SimHighlightCard({ article }) {
   return (
     <Link
       to={`/acervo/${article.id}/simulacao`}
-      data-cursor-label
+      data-cursor-label="Mexer"
       className="group flex flex-col min-h-[15rem] p-6 bg-sl-bg text-sl-text
                  hover:bg-white hover:text-black
                  transition-colors duration-150"

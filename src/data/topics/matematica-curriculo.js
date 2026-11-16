@@ -401,7 +401,7 @@ export const ARTIGOS = [
     "simulation": {
       "component": "funcao-quadratica",
       "subtitle": "Explorador de Parábola",
-      "about": "Mova os coeficientes a, b e c e veja a parábola f(x) = ax² + bx + c mudar ao vivo, junto com tudo o que a álgebra prevê: a concavidade (sinal de a), o discriminante Δ = b² − 4ac, as raízes (onde cruza o eixo x), o intercepto com y (o valor de c) e o vértice (xv = −b/2a). Deixe Δ ficar negativo para ver a parábola descolar do eixo x — sem raízes reais, mas sempre com vértice. Um ponto varre a curva para lembrar que cada x gera um único f(x).",
+      "about": "Pegue a parábola pelo vértice V e arraste: ela se desloca inteira sem mudar a abertura, e os coeficientes b e c acompanham. O ponto c, no eixo y, sobe e desce a curva. As raízes aparecem onde ela corta o eixo x, e a faixa colorida entre elas é onde a função tem o sinal contrário ao de a. Ao lado, a parábola aparece desmontada nos três termos: ax² (uma parábola pela origem), bx (uma reta) e c (uma constante) — somar a reta não deforma a parábola, só a empurra de lado. A régua de baixo mostra o discriminante: negativo, nenhuma raiz; zero, uma raiz dupla; positivo, duas.",
       "icon": "activity",
       "iconColor": "#8c8aa6",
       "presets": [{"label": "Duas raízes", "values": {"a": 1, "b": -2, "c": -3}}, {"label": "Raiz dupla", "values": {"a": 1, "b": -2, "c": 1}}, {"label": "Sem raízes reais", "values": {"a": 1, "b": 0, "c": 2}}, {"label": "Boca para baixo", "values": {"a": -1, "b": 2, "c": 3}}],
@@ -861,9 +861,10 @@ export const ARTIGOS = [
     "simulation": {
       "component": "derivada-tangente",
       "subtitle": "A Derivada como Reta Tangente",
-      "about": "A definição da derivada, tornada visível. Na curva f(x) = 0,2x³ − x, o ponto P está em x₀ e o ponto Q a uma distância h. A reta secante por P e Q tem inclinação [f(x₀+h) − f(x₀)]/h; a reta tangente em P tem inclinação f′(x₀), a derivada. Encolha o slider h em direção a zero e veja a secante (tracejada) se fundir com a tangente (cheia), a inclinação medida convergindo para o valor exato. Mova x₀ para achar onde a tangente fica horizontal (f′ = 0) — os máximos e mínimos.",
+      "about": "O ponto P fica em x₀ e o ponto Q a uma distância h. A reta tracejada (secante) passa pelos dois; a cheia (tangente) só encosta em P. O triângulo mostra a conta: inclinação da secante = Δy ÷ h. Arraste Q para perto de P e veja a secante girar até coincidir com a tangente — o primeiro gráfico mostra essa inclinação chegando ao limite f′(x₀) quando h vai a zero. O segundo gráfico é a própria derivada: a inclinação da tangente em cada x. Onde ela cruza o zero, a tangente fica horizontal: são o máximo e o mínimo locais da curva. Arraste P até lá.",
       "icon": "activity",
       "iconColor": "#8c8aa6",
+      "presets": [{"label":"Secante longe","values":{"x0":1,"h":3}},{"label":"Quase tangente","values":{"x0":1,"h":0.05}},{"label":"Mínimo local","values":{"x0":1.3,"h":1}},{"label":"Máximo local","values":{"x0":-1.3,"h":1}}],
       "controls": [
         {
           "id": "x0",
@@ -947,10 +948,12 @@ export const ARTIGOS = [
     "simulation": {
       "component": "integral-area",
       "subtitle": "A Integral como Área sob a Curva",
-      "about": "A soma de Riemann, tornada visível. A área sob f(x) = 0,15x² + 0,5, entre a e b, é aproximada por n retângulos cuja soma de áreas (Σ f(xᵢ)·Δx) aparece ao lado da integral exata ∫ₐᵇ f dx. Aumente o número de retângulos e veja a soma convergir para a área verdadeira, com o erro despencando — os retângulos 'preenchem' a região curva. A integral exata vem do Teorema Fundamental: F(b) − F(a), com F(x) = 0,05x³ + 0,5x.",
+      "about": "A área verde ao fundo é a integral exata; os retângulos são a tentativa de medi-la somando fatias. O quadradinho branco em cada retângulo mostra em que ponto da curva a altura dele foi lida — troque entre esquerda, ponto médio e direita e veja a diferença: no ponto médio, o que sobra de um lado quase compensa o que falta do outro, e o erro cai muito mais rápido. O primeiro gráfico mostra a soma se aproximando do valor exato conforme n cresce. O segundo é a área acumulada de a até x: a curva verde é a exata, a escada é a soma dos retângulos subindo degrau a degrau. Arraste os limites a e b sobre o eixo.",
       "icon": "activity",
       "iconColor": "#8c8aa6",
+      "presets": [{"label":"Poucos retângulos","values":{"n":4}},{"label":"Muitos retângulos","values":{"n":60}},{"label":"Intervalo simétrico","values":{"a":-3,"b":3,"n":8}}],
       "controls": [
+        {"id":"metodo","type":"select","label":"Altura do retângulo lida em","default":0,"options":[{"value":0,"label":"Esquerda"},{"value":1,"label":"Ponto médio"},{"value":2,"label":"Direita"}]},
         {
           "id": "a",
           "label": "Limite inferior a",

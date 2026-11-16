@@ -343,7 +343,7 @@ export const ARTIGOS = [
     "simulation": {
       "component": "plano-inclinado",
       "subtitle": "Plano Inclinado",
-      "about": "O bloco na rampa mostra o peso decomposto em duas componentes: ao longo do plano (W∥ = mg·senθ, que puxa para baixo) e perpendicular (equilibrada pela normal N = mg·cosθ). O corpo desliza quando W∥ vence o atrito estático máximo — o que acontece exatamente quando tan θ > μ, uma condição em que a massa se cancela (um piano e uma moeda deslizam no mesmo ângulo). Deslizando, a aceleração é a = g(senθ − μcosθ). Ajuste ângulo, massa e atrito e acompanhe os vetores e o HUD.",
+      "about": "A rampa tem 4 m. O bloco é largado do alto e um cronômetro mede a descida. As setas mostram o peso (P) decomposto em duas partes: a que puxa rampa abaixo (P∥ = mg·sen θ) e a que aperta o bloco contra a rampa, equilibrada pela normal (N). O bloco só desliza quando tan θ passa de μ — as duas barras ao lado são essa balança, e nelas a massa não aparece: um piano e uma moeda escorregam no mesmo ângulo. O gráfico mostra a aceleração em cada inclinação para o atrito escolhido, com o ângulo crítico θc marcado. Arraste o topo da rampa para inclinar.",
       "icon": "zap",
       "iconColor": "#8a97a6",
       "presets": [{"label": "Sem atrito", "values": {"atrito": 0}}, {"label": "Pouco atrito", "values": {"atrito": 0.1}}, {"label": "Muito atrito", "values": {"atrito": 0.8}}],
@@ -399,10 +399,12 @@ export const ARTIGOS = [
     "simulation": {
       "component": "movimento-circular",
       "subtitle": "Movimento Circular Uniforme",
-      "about": "A velocidade tem módulo constante, mas muda de direção o tempo todo — e isso é uma aceleração que aponta para o centro (centrípeta): a_c = v²/r, com força F_c = m·v²/r. A seta da velocidade é sempre tangente; a da força aponta para o centro; e a seta pontilhada mostra a fuga em linha reta pela tangente que aconteceria sem a força (a 1ª Lei de Newton). O HUD calcula período, frequência e velocidade angular. Ajuste o raio e a velocidade e veja tudo responder.",
+      "about": "A velocidade tem módulo constante, mas muda de direção o tempo todo — e isso é uma aceleração que aponta para o centro: a = v²/r, com força F = m·v²/r. Arraste o corpo para mudar o raio. Depois corte o barbante: sem a força, o corpo não é jogado para fora, ele segue reto pela tangente com a velocidade que tinha (1ª Lei de Newton). Os dois quadradinhos nos eixos são as sombras do giro; o gráfico ao lado mostra que cada uma é um vaivém harmônico, como o de um pêndulo. A curva de baixo é a = v²/r: dobrar a velocidade quadruplica a força.",
       "icon": "orbit",
       "iconColor": "#8a97a6",
+      "presets": [{"label": "Volta larga e lenta", "values": {"raio": 5, "velocidade": 3}}, {"label": "Volta curta e rápida", "values": {"raio": 1.5, "velocidade": 9}}, {"label": "Mesma velocidade, metade do raio", "values": {"raio": 1, "velocidade": 6}}],
       "controls": [
+        {"id": "solto", "type": "toggle", "label": "Cortar o barbante", "on": 1, "off": 0, "default": 0},
         {
           "id": "raio",
           "label": "Raio da trajetória",
@@ -454,7 +456,7 @@ export const ARTIGOS = [
     "simulation": {
       "component": "conservacao-energia",
       "subtitle": "Conservação da Energia Mecânica",
-      "about": "A bolinha num trilho em forma de vale troca energia potencial por cinética e vice-versa: no alto tudo é potencial (v = 0), no fundo tudo é cinética (v máxima). As barras mostram E_c, E_p e a mecânica total E_m ao vivo, comprovando E_c + E_p = constante enquanto não há atrito. Ligue o atrito e veja a energia mecânica ser dissipada em calor (a barra Q cresce) — a bolinha sobe cada vez menos até parar no fundo, mas o total mecânica + calor se conserva. Ajuste a altura inicial e o atrito.",
+      "about": "O desenho do trilho já é o gráfico da energia potencial, então a energia mecânica aparece como uma linha horizontal sobre o vale. A bolinha nunca passa dessa linha; a distância dela até a linha (traço âmbar) é a energia cinética, e a altura acima do fundo (traço verde) é a potencial. Sem atrito a linha não se move e a bolinha volta sempre à altura de onde saiu. Ligue o atrito: a linha desce, o que desceu virou calor, e os pontos de retorno se fecham até a bolinha parar. Arraste a bolinha pelo trilho para escolher de onde largar.",
       "icon": "zap",
       "iconColor": "#8a97a6",
       "presets": [{"label": "Sem atrito", "values": {"atrito": 0}}, {"label": "Com atrito", "values": {"atrito": 0.15}}],
@@ -501,9 +503,10 @@ export const ARTIGOS = [
     "simulation": {
       "component": "atwood",
       "subtitle": "Máquina de Atwood",
-      "about": "Duas massas ligadas por um fio sobre uma polia. Aplicando a 2ª Lei a cada bloco e somando, a tração some e sobra a = (m₁−m₂)g/(m₁+m₂), com tração T = 2m₁m₂g/(m₁+m₂). Massas iguais dão a = 0 (equilíbrio); massas muito diferentes fazem a → g (queda quase livre). Os vetores de peso e tração aparecem em cada bloco. Ajuste m₁ e m₂ e veja a aceleração, a tração e qual lado desce.",
+      "about": "A simulação repete o experimento de Atwood: o bloco mais pesado parte do repouso, cai uma altura conhecida e o cronômetro mede o tempo. Aplicando a 2ª Lei a cada bloco e somando, a tração some e sobra a = (m₁−m₂)g/(m₁+m₂). O gráfico de cima mostra a velocidade crescendo em linha reta (a inclinação é a aceleração); o de baixo, como massas parecidas deixam a queda lenta. Com o tempo cronometrado, o painel calcula a gravidade como Atwood fez em 1784 — e o resultado bate com 9,8 m/s². Arraste um bloco para cima e solte para escolher a altura de queda.",
       "icon": "zap",
       "iconColor": "#8a97a6",
+      "presets": [{"label": "Quase iguais", "values": {"massa1": 5, "massa2": 4.5}}, {"label": "Equilíbrio", "values": {"massa1": 3, "massa2": 3}}, {"label": "Bem diferentes", "values": {"massa1": 9, "massa2": 1}}],
       "controls": [
         {
           "id": "massa1",
@@ -547,9 +550,10 @@ export const ARTIGOS = [
     "simulation": {
       "component": "alavanca",
       "subtitle": "Alavanca e Torque",
-      "about": "O torque de uma força é τ = F·d (força × distância ao ponto de apoio). A barra equilibra quando os torques dos dois lados se anulam: m_e·d_e = m_d·d_d. Por isso uma criança equilibra um adulto na gangorra, sentando mais longe do apoio. Ajuste as massas e as distâncias de cada lado: a barra gira para o lado de maior torque e fica horizontal no equilíbrio. O HUD mostra os dois torques em N·m.",
+      "about": "A barra gira de verdade: a simulação integra a 2ª Lei da rotação, então um desequilíbrio pequeno a faz tombar devagar e um grande a derruba depressa, até a ponta bater no chão. O torque de cada lado é força vezes distância ao apoio (as cotas azuis); as duas barras ao lado comparam os torques. O losango amarelo marca onde o peso da direita teria de ficar para equilibrar — arraste o peso até ele. O gráfico mostra por que a alavanca multiplica força: quanto mais longe do apoio, menos força é preciso para segurar o outro lado.",
       "icon": "zap",
       "iconColor": "#8a97a6",
+      "presets": [{"label":"Equilíbrio","values":{"massaEsq":4,"distEsq":3,"massaDir":4,"distDir":3}},{"label":"Criança e adulto na gangorra","values":{"massaEsq":8,"distEsq":1.5,"massaDir":3,"distDir":4}},{"label":"Pé de cabra","values":{"massaEsq":10,"distEsq":1,"massaDir":2,"distDir":5}},{"label":"Quase lá","values":{"massaEsq":5,"distEsq":3,"massaDir":4,"distDir":3.5}}],
       "controls": [
         {
           "id": "massaEsq",
@@ -611,10 +615,12 @@ export const ARTIGOS = [
     "simulation": {
       "component": "ondas-estacionarias",
       "subtitle": "Ondas Estacionárias numa Corda",
-      "about": "Numa corda presa nas duas pontas, só cabem ondas cujos comprimentos fecham em nós nas extremidades — o que quantiza as frequências nos harmônicos: λₙ = 2L/n e fₙ = n·v/(2L) = n·f₁. O modo n = 1 é o fundamental; n = 2, 3, … os harmônicos. Os pontos parados (âmbar) são os nós; os de oscilação máxima, os ventres. Escolha o harmônico, a amplitude e a velocidade de propagação e veja a frequência saltar em múltiplos do fundamental — a física por trás das notas de um violão.",
+      "about": "Uma onda estacionária é a soma de duas ondas iguais correndo em sentidos opostos: a que vai e a que voltou refletida na ponta presa. As linhas finas são essas duas ondas; a linha grossa é a soma, que oscila sem sair do lugar. Os quadrados amarelos são os nós (nunca se movem); a mancha clara é a região que a corda varre. Como as duas pontas têm de ser nós, só cabem na corda as frequências do espectro de baixo: fₙ = n·v/(2L). Clique numa haste para trocar de harmônico, arraste o primeiro ventre para mudar a amplitude e passe o mouse sobre a corda para ler quanto cada ponto oscila. O movimento está em câmera lenta de 20×.",
       "icon": "waves",
       "iconColor": "#8a97a6",
+      "presets": [{"label": "Fundamental", "values": {"harmonico": 1}}, {"label": "Oitava (2º)", "values": {"harmonico": 2}}, {"label": "Quinta acima (3º)", "values": {"harmonico": 3}}, {"label": "Corda mais tensa", "values": {"velocidade": 30}}],
       "controls": [
+        {"id": "viajantes", "type": "toggle", "label": "Mostrar as duas ondas viajantes", "on": 1, "off": 0, "default": 1},
         {
           "id": "harmonico",
           "label": "Harmônico (n)",

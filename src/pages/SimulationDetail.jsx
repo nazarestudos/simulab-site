@@ -11,7 +11,7 @@
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useState, useCallback, useEffect, useMemo, useRef, Suspense } from 'react'
 import { Play, Pause, StepForward, RotateCcw, Maximize, Minimize, Download, Link2, Check } from 'lucide-react'
-import { getArtigoById } from '../data'
+import { getArtigoById, TOPIC_COLORS } from '../data'
 import { getSimulationCanvas } from '../simulations/registry'
 import { SimClock } from '../simulations/engine'
 import { CategoryBadge, LevelBadge } from '../components/CategoryBadge'
@@ -110,6 +110,25 @@ function ControlCell({ ctrl, value, onChange }) {
   )
 }
 
+/** Tempo simulado, por extenso curto: "12,4 s" ou "2 min 05 s". */
+function fmtClock(t) {
+  if (t < 60) return `${t.toFixed(1).replace('.', ',')} s`
+  const m = Math.floor(t / 60)
+  return `${m} min ${String(Math.floor(t - m * 60)).padStart(2, '0')} s`
+}
+
+/**
+ * Uma leitura vinda do canvas ("1.96 m/s²") vira número + unidade, com
+ * vírgula decimal — o mesmo formato dos controles logo abaixo.
+ */
+function splitReading(v) {
+  const s = String(v).replace(/(\d)\.(\d)/g, '$1,$2')
+  // unidade = o que vem depois do número e não tem dígitos ("m/s²", "N·m");
+  // "−1,00 e 3,00" ou "0,58 vs 0,30" ficam inteiros.
+  const m = s.match(/^([+\-−]?[\d,]+(?:e[+\-]?\d+)?)\s+(\D+)$/)
+  return m ? { num: m[1], unit: m[2] } : { num: s, unit: '' }
+}
+
 function Key({ children }) {
   return (
     <kbd className="inline-flex items-center justify-center min-w-[1.6rem] h-6 px-1.5
@@ -154,9 +173,15 @@ export default function SimulationDetail() {
       return next
     })
   }, [sim])
+  // O relógio escreve direto no DOM: 8 atualizações por segundo não
+  // precisam redesenhar a página inteira.
+  const clockRef = useRef(null)
+  const onTick = useCallback(t => {
+    if (clockRef.current) clockRef.current.textContent = fmtClock(t)
+  }, [])
   const clock = useMemo(
-    () => ({ speed, stepKey, onReadout: setPanels, onParams }),
-    [speed, stepKey, onParams],
+    () => ({ speed, stepKey, onReadout: setPanels, onParams, onTick }),
+    [speed, stepKey, onParams, onTick],
   )
 
   // Link que reabre a simulação com estes valores. Vai para a área de
@@ -275,7 +300,26 @@ export default function SimulationDetail() {
 
           {/* ── Palco + barra de transporte ── */}
           <div ref={stageRef} className="sim-stage border border-sl-border2">
+            <div className="flex items-center justify-between gap-4 h-10 px-4 sm:px-5 border-b border-sl-border2 text-[0.875rem]">
+              <span className="flex items-center gap-2.5 text-sl-text font-500" aria-live="polite">
+                <span
+                  className={`sim-led ${running ? 'is-on' : ''}`}
+                  style={{ '--led': TOPIC_COLORS[article.topic] }}
+                  aria-hidden="true"
+                />
+                {running ? 'Rodando' : 'Em pausa'}
+                {speed !== 1 && (
+                  <span className="text-sl-dim font-400 tabular-nums">a {String(speed).replace('.', ',')}×</span>
+                )}
+              </span>
+              <span className="text-sl-dim">
+                <span className="hidden sm:inline">Tempo simulado </span>
+                <span ref={clockRef} className="inline-block min-w-[4.5ch] text-right text-sl-text font-700 tabular-nums">0,0 s</span>
+              </span>
+            </div>
+
             <div className="sim-viewport h-[clamp(340px,62vh,680px)] relative">
+              <div key={resetKey} className="stage-fx" aria-hidden="true" />
               {Canvas ? (
                 <Suspense fallback={
                   <div className="w-full h-full flex items-center justify-center">
@@ -297,24 +341,30 @@ export default function SimulationDetail() {
 
             {/* Leituras ao vivo — saem do canvas e viram texto de verdade */}
             {panels.map((panel, i) => (
-              <div key={i} className="border-t border-sl-border2 px-4 sm:px-5 py-4" aria-live="off">
+              <div key={i} className="border-t border-sl-border2" aria-live="off">
                 {panel.title && (
-                  <p className="text-sl-dim text-[0.875rem] mb-3">{panel.title}</p>
+                  <p className="px-4 sm:px-[1.1rem] py-2.5 border-b border-sl-border text-sl-text text-[0.875rem] font-500">
+                    {panel.title}
+                  </p>
                 )}
-                <dl className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-3">
-                  {panel.rows.map(row => (
-                    <div key={row.k} className="min-w-0">
-                      <dt className="flex items-center gap-2 text-sl-dim text-[0.875rem] leading-snug">
-                        {row.c?.startsWith('#') && (
-                          <span className="w-2 h-2 shrink-0" style={{ background: row.c }} aria-hidden="true" />
-                        )}
-                        <span className="truncate">{row.k}</span>
-                      </dt>
-                      <dd className="text-sl-text text-[1rem] font-700 leading-snug tabular-nums truncate">
-                        {row.v}
-                      </dd>
-                    </div>
-                  ))}
+                <dl className="sim-readouts">
+                  {panel.rows.map(row => {
+                    const { num, unit } = splitReading(row.v)
+                    return (
+                      <div key={row.k}>
+                        <dt className="flex items-center gap-2 text-sl-dim text-[0.8125rem] leading-snug mb-1">
+                          {row.c?.startsWith('#') && (
+                            <span className="w-2 h-2 shrink-0" style={{ background: row.c }} aria-hidden="true" />
+                          )}
+                          <span className="truncate">{row.k}</span>
+                        </dt>
+                        <dd className="font-display font-700 text-sl-text text-[1.25rem] leading-[1.15] tracking-[-0.01em] tabular-nums truncate">
+                          {num}
+                          {unit && <span className="font-body font-400 text-sl-dim text-[0.8125rem] tracking-normal"> {unit}</span>}
+                        </dd>
+                      </div>
+                    )
+                  })}
                 </dl>
               </div>
             ))}
